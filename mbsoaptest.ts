@@ -18,20 +18,20 @@ soap.createClient(url, function (err, client) {
 /* var callback = (err :string, client :soap.Client) :void => {};
  */
 
- class CUserCredentials {
-     constructor(public username:string, public password: string, public siteids: number[], public locationid: number) {}
- }
+class CUserCredentials {
+  constructor(public username: string, public password: string, public siteids: number[], public locationid: number) { }
+}
 
- class CSourceCredentials {
-   constructor(public sourcename:string, password:string, siteids: number[], usercredentials: CUserCredentials, LocationID: number,
-   SessionTypeIDs: number, StartDateTime: string, EndDateTime: string, ) {}
- }
+class CSourceCredentials {
+  constructor(public sourcename: string, password: string, siteids: number[], usercredentials: CUserCredentials, LocationID: number,
+    SessionTypeIDs: number, StartDateTime: string, EndDateTime: string, ) { }
+}
 
- class CGetResourcesArgs {
-  constructor(public userCredentials: CUserCredentials, public sourceCredentials: CSourceCredentials) {}
- }
+class CGetResourcesArgs {
+  constructor(public userCredentials: CUserCredentials, public sourceCredentials: CSourceCredentials) { }
+}
 
-const cred = new CUserCredentials("Siteowner","apitest1234",[-99],0);
+//const cred = new CUserCredentials("Siteowner","apitest1234",[-99],0);
 
 soap.createClient(url, (err, client): void => {
 
@@ -42,12 +42,12 @@ soap.createClient(url, (err, client): void => {
           {
             SourceName: 'LissomeHongKongLimited',
             Password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
-            SiteIDs: {'int':'-99'},
+            SiteIDs: { 'int': '-99' },
             UserCredentials:
               {
                 Username: 'Siteowner',
                 Password: 'apitest1234',
-                SiteIDs: {'int':'-99'},
+                SiteIDs: { 'int': '-99' },
                 LocationID: '0'
               }
           },
