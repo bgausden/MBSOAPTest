@@ -2,7 +2,22 @@ import soap = require('soap');
 
 //import { stringify } from 'querystring';
 
-var url = 'https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl';
+const wsdlUrl = 'https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl';
+
+const sourceCreds = {
+  SourceName: 'LissomeHongKongLimited',
+  Password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
+  SiteIDs: { 'int': '-99' }
+};
+
+const userCreds =
+  {
+    Username: 'Siteowner',
+    Password: 'apitest1234',
+    SiteIDs: [-99], //array of site IDs (usually only one)
+    LocationID: 0
+  };
+
 /* var args = { name: 'value' };
 soap.createClient(url, function (err, client) {
   if (err) {
@@ -31,10 +46,15 @@ class CGetResourcesArgs {
   constructor(public userCredentials: CUserCredentials, public sourceCredentials: CSourceCredentials) { }
 }
 
-//const cred = new CUserCredentials("Siteowner","apitest1234",[-99],0);
+//const cred = new CUserCredentials("Siteowner", "apitest1234", [-99], 0);
+const cred = new CUserCredentials(
+  userCreds["Username"],
+  userCreds["Password"],
+  userCreds["SiteIDs"],
+  userCreds["LocationID"]
+);
 
-soap.createClient(url, (err, client): void => {
-
+soap.createClient(wsdlUrl, (err, client): void => {
   const get_resources_args = {
     Request:
       {
