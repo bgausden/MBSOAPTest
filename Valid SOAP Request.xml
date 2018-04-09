@@ -1,0 +1,31 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://clients.mindbodyonline.com/api/0_5_1">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ns1:GetResources>
+         <ns1:Request>
+            <ns1:SourceCredentials>
+               <ns1:SourceName>LissomeHongKongLimited</ns1:SourceName>
+               <ns1:Password>oHmyTX0H/pciVoPW35pwahivDsE=</ns1:Password>
+               <ns1:SiteIDs>
+                  <ns1:int>-99</ns1:int>
+               </ns1:SiteIDs>
+            </ns1:SourceCredentials>
+            <ns1:UserCredentials>
+               <ns1:Username>Siteowner</ns1:Username>
+               <ns1:Password>apitest1234</ns1:Password>
+               <ns1:SiteIDs>
+                  <ns1:int>-99</ns1:int>
+               </ns1:SiteIDs>
+               <ns1:LocationID>0</ns1:LocationID>
+            </ns1:UserCredentials>
+            <ns1:XMLDetail>Full</ns1:XMLDetail>
+            <ns1:PageSize>1000</ns1:PageSize>
+            <ns1:CurrentPageIndex>0</ns1:CurrentPageIndex>
+            <ns1:LocationID>0</ns1:LocationID>
+            <ns1:SessionTypeIDs>2</ns1:SessionTypeIDs>
+            <ns1:StartDateTime>2018-04-17T14:00:00</ns1:StartDateTime>
+            <ns1:EndDateTime>2018-04-17T20:00:00</ns1:EndDateTime>
+         </ns1:Request>
+      </ns1:GetResources>
+   </soapenv:Body>
+</soapenv:Envelope>
