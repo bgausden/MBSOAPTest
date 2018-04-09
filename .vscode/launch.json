@@ -10,10 +10,10 @@
             "request": "launch",
             "name": "Launch Program",
             // "program": "${workspaceFolder}/mbsoaptest.js",
-            "program": "${file}"
-            //"outFiles": [
-            //    "${workspaceFolder}/**/*.js"
-            //]
+            "program": "${file}",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
         }
     ]
 }
