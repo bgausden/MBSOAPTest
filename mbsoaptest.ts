@@ -4,19 +4,21 @@ import soap = require('soap');
 
 const wsdlUrl = 'https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl';
 
-const sourceCreds = {
-  SourceName: 'LissomeHongKongLimited',
-  Password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
-  SiteIDs: { 'int': '-99' }
-};
-
 const userCreds =
   {
     Username: 'Siteowner',
     Password: 'apitest1234',
-    SiteIDs: [-99], //array of site IDs (usually only one)
+    SiteIDs: {'int':-99}, //array of site IDs (usually only one)
     LocationID: 0
   };
+
+  const sourceCreds = {
+    SourceName: 'LissomeHongKongLimited',
+    Password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
+    SiteIDs: { 'int': '-99' },
+    userCreds
+  };
+    
 
 /* var args = { name: 'value' };
 soap.createClient(url, function (err, client) {
@@ -42,17 +44,25 @@ class CSourceCredentials {
     SessionTypeIDs: number, StartDateTime: string, EndDateTime: string, ) { }
 }
 
+interface IUserCredentials {
+  username: string, password: string, siteids: JSON, locationid: number
+}
+
+interface ISourceCredentials {
+  sourcename: string, password: string, siteids: number[], usercredentials: IUserCredentials
+}
+
 class CGetResourcesArgs {
   constructor(public userCredentials: CUserCredentials, public sourceCredentials: CSourceCredentials) { }
 }
 
 //const cred = new CUserCredentials("Siteowner", "apitest1234", [-99], 0);
-const cred = new CUserCredentials(
+/* const userCred = new CUserCredentials(
   userCreds["Username"],
   userCreds["Password"],
   userCreds["SiteIDs"],
   userCreds["LocationID"]
-);
+); */
 
 soap.createClient(wsdlUrl, (err, client): void => {
   const get_resources_args = {
