@@ -1,40 +1,65 @@
 import soap = require('soap');
 
-//import { stringify } from 'querystring';
+const enum EDetail {
+  Full,
+  Basic,
+  Bare
+}
 
 const wsdlUrl = 'https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl';
 
+const defaultUserCreds = {
+  username: 'Siteowner',
+  password: 'apitest1234',
+  siteids: { 'int': -99 },
+  locationid: 0
+};
+
+const defaultSourceCreds = {
+  sourcename: 'LissomeHongKongLimited',
+  password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
+  siteids: { 'int': -99 },
+  usercredentials: defaultUserCreds
+};
+
+const defaultGetResourceParams = {
+  locationid: 0,
+  sessiontypeid: 1,
+  startdatetime: new Date(new Date().setHours(0, 0, 0, 0)),
+  enddatetime: new Date(new Date().setHours(0, 0, 0, 0))
+};
+
+const defaultPagingparams = {
+  pagesize: 10,
+  currentpageindex: 0
+};
+
+const defaultDetail = EDetail.Basic;
 
 interface IUserCredentials {
-  username: string, 
-  password: string, 
-  siteids: { "int": number }, 
+  username: string,
+  password: string,
+  siteids: { "int": number },
   locationid: number
 }
 
 interface ISourceCredentials {
-  sourcename: string, 
-  password: string, 
-  siteids: { "int": number }, 
+  sourcename: string,
+  password: string,
+  siteids: { "int": number },
   usercredentials: IUserCredentials
 }
 
-interface IGetResourcesParam {
-  locationid: number, 
-  sessiontypeid: number, 
-  startdatetime: Date, 
+interface IGetResourcesParams {
+  locationid: number,
+  sessiontypeid: number,
+  startdatetime: Date,
   enddatetime: Date
 }
 
-interface IPagingParam {
+interface IPagingParams {
   pagesize: number,
   currentpageindex: number
-}
-
-enum EDetail {
-  "Full",
-  "Basic",
-  "Bare"
 }
 
 class CUserCredentials implements IUserCredentials {
@@ -47,35 +72,17 @@ class CSourceCredentials implements ISourceCredentials {
 }
 
 class CGetResourcesArgs {
-  constructor(public userCredentials: IUserCredentials, public sourceCredentials: ISourceCredentials, getresourcesparam: IGetResourcesParam, pagingparam: IPagingParam, detail: EDetail ) { }
+  constructor(public userCredentials: IUserCredentials, public sourceCredentials: ISourceCredentials, getresourcesparam: IGetResourcesParams, pagingparam: IPagingParams, detail: EDetail) { }
 }
 
 
 
-//const cred = new CUserCredentials("Siteowner", "apitest1234", [-99], 0);
-/* const userCred = new CUserCredentials(
-  userCreds["Username"],
-  userCreds["Password"],
-  userCreds["SiteIDs"],
-  userCreds["LocationID"]
-); */
-
-const userCreds: IUserCredentials =
-  {
-    username: 'Siteowner',
-    password: 'apitest1234',
-    siteids: { 'int': -99 }, //array of site IDs (usually only one) represented as a JSON object
-    locationid: 0
-  };
-
-const sourceCreds: ISourceCredentials = {
-  sourcename: 'LissomeHongKongLimited',
-  password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
-  siteids: { 'int': -99 },
-  usercredentials: userCreds
-};
-
-//TODO use object composition to join userCredentials and sourceCredentials? Need userCredentials to be a prop value.
+//const userCreds: IUserCredentials = defaultUserCreds;
+const sourceCreds: ISourceCredentials = defaultSourceCreds;
+// TODO need to convert Date object to string representation so it can be consumed by soapClient
+const getResourcesParams: IGetResourcesParams = defaultGetResourceParams;
+const pagingParams: IPagingParams = defaultPagingparams;
+const getResourceArgs: IGetResourcesParams = Object.assign(sourceCreds, getResourcesParams, pagingParams);
 
 soap.createClient(wsdlUrl, (err, client): void => {
   /* const get_resources_args = {
