@@ -11,7 +11,8 @@ const wsdlUrl = 'https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl';
 const defaultUserCreds = {
   username: 'Siteowner',
   password: 'apitest1234',
-  siteids: { 'int': -99 },
+  //siteids: { 'int': -99 }, this is what the soap library expects
+  siteids: [-99],
   locationid: 0
 };
 
@@ -39,7 +40,14 @@ const defaultDetail = EDetail.Basic;
 interface IUserCredentials {
   username: string,
   password: string,
-  siteids: { "int": number },
+  siteids: number[],
+  locationid: number
+}
+
+interface IMBSOAPUserCredentials {
+  username: string,
+  password: string,
+  siteids: { "int": number }[],
   locationid: number
 }
 
@@ -63,8 +71,22 @@ interface IPagingParams {
 }
 
 class CUserCredentials implements IUserCredentials {
-  constructor(public username: string, public password: string, public siteids: { "int": number }, public locationid: number) { }
+  constructor(public username: string, public password: string, public siteids: number[], public locationid: number) { };
+  createMBSOAPUserCredentials(): IMBSOAPUserCredentials {
+    let sids = new Array<{ "int": number }>();
+    this.siteids.forEach((siteid, i) => sids[i] = { "int": siteid });
+    return {
+      username: this.username,
+      password: this.password,
+      siteids: sids,
+      locationid: this.locationid
+    }
+  }
 }
+
+//const testUserCredentials: IMBSOAPUserCredentials = new CUserCredentials("barryg", "pass", [-99, -98, -97], 0).createMBSOAPUserCredentials();
+//const testUserCredentials: IMBSOAPUserCredentials = new CUserCredentials(...defaultUserCreds);
+//const testMBUCObject: IMBSOAPUserCredentials = testUserCredentials.createMBSOAPUserCredentials();
 
 class CSourceCredentials implements ISourceCredentials {
   constructor(public sourcename: string, public password: string, public siteids: { "int": number }, public usercredentials: IUserCredentials, public LocationID: number,
@@ -74,7 +96,6 @@ class CSourceCredentials implements ISourceCredentials {
 class CGetResourcesArgs {
   constructor(public userCredentials: IUserCredentials, public sourceCredentials: ISourceCredentials, getresourcesparam: IGetResourcesParams, pagingparam: IPagingParams, detail: EDetail) { }
 }
-
 
 
 //const userCreds: IUserCredentials = defaultUserCreds;
