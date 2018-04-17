@@ -6,13 +6,26 @@ const enum EDetail {
   Bare
 }
 
+enum MBSiteCall {
+  GetSites,
+  GetLocations,
+  GetActivationCode,
+  GetPrograms,
+  GetSessionTypes,
+  GetResources,
+  GetRelationships,
+  GetGenders,
+  GetProspectStages,
+  GetMobileProviders
+}
+
 const wsdlUrl = 'https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl';
 
 const defaultUserCreds = {
   username: 'Siteowner',
   password: 'apitest1234',
   //siteids: { 'int': -99 }, this is what the soap library expects
-  siteids: [-99],
+  siteids: {"int":-99},
   locationid: 0
 };
 
@@ -23,11 +36,11 @@ const defaultSourceCreds = {
   usercredentials: defaultUserCreds
 };
 
-const defaultGetResourceParams = {
+const defaultGetResourceParams: IGetResourcesParams = {
   locationid: 0,
   sessiontypeid: 1,
   startdatetime: new Date(new Date().setHours(0, 0, 0, 0)),
-  enddatetime: new Date(new Date().setHours(0, 0, 0, 0))
+  enddatetime: new Date(new Date().setHours(0, 0, 0, 0)),
 };
 
 const defaultPagingparams = {
@@ -40,14 +53,14 @@ const defaultDetail = EDetail.Basic;
 interface IUserCredentials {
   username: string,
   password: string,
-  siteids: number[],
+  siteids: {"int":number},
   locationid: number
 }
 
 interface IMBSOAPUserCredentials {
   username: string,
   password: string,
-  siteids: { "int": number }[],
+  siteids: { "int": number },
   locationid: number
 }
 
@@ -61,8 +74,9 @@ interface ISourceCredentials {
 interface IGetResourcesParams {
   locationid: number,
   sessiontypeid: number,
-  startdatetime: Date,
-  enddatetime: Date
+  startdatetime: Date | string,
+  enddatetime: Date | string,
+  stringy?: () => IGetResourcesParams
 }
 
 interface IPagingParams {
@@ -70,78 +84,78 @@ interface IPagingParams {
   currentpageindex: number
 }
 
+interface ISOAPGetResourcesArgs {
+  Request: {
+    SourceCredentials: ISourceCredentials,
+    UserCredentials: IUserCredentials,
+    LocationID:number,
+    SessionTypeIDs: number,
+    StartDateTime: string,
+    EndDateTime: string,
+    XMLDetail: string,
+    PageSize: number,
+    CurrentPageIndex: number,
+  }
+}
+
 class CUserCredentials implements IUserCredentials {
-  constructor(public username: string, public password: string, public siteids: number[], public locationid: number) { };
+  constructor(public username: string, public password: string, public siteids: {"int":number}, public locationid: number) { };
   createMBSOAPUserCredentials(): IMBSOAPUserCredentials {
-    let sids = new Array<{ "int": number }>();
-    this.siteids.forEach((siteid, i) => sids[i] = { "int": siteid });
     return {
       username: this.username,
       password: this.password,
-      siteids: sids,
+      siteids: this.siteids,
       locationid: this.locationid
     }
   }
 }
-
-//const testUserCredentials: IMBSOAPUserCredentials = new CUserCredentials("barryg", "pass", [-99, -98, -97], 0).createMBSOAPUserCredentials();
-//const testUserCredentials: IMBSOAPUserCredentials = new CUserCredentials(...defaultUserCreds);
-//const testMBUCObject: IMBSOAPUserCredentials = testUserCredentials.createMBSOAPUserCredentials();
 
 class CSourceCredentials implements ISourceCredentials {
   constructor(public sourcename: string, public password: string, public siteids: { "int": number }, public usercredentials: IUserCredentials, public LocationID: number,
     public SessionTypeIDs: number, public StartDateTime: string, public EndDateTime: string) { }
 }
 
+class CGetResourcesParams implements IGetResourcesParams {
+  constructor(public locationid: number, public sessiontypeid: number, public startdatetime: Date, public enddatetime: Date) { }
+  stringy(): IGetResourcesParams {
+    return {
+      locationid: this.locationid,
+      sessiontypeid: this.sessiontypeid,
+      startdatetime: this.startdatetime.toJSON(),
+      enddatetime: this.enddatetime.toJSON()
+    }
+  }
+}
+
+const testGRParams = new CGetResourcesParams(0,1,new Date(new Date().setHours(0, 0, 0, 0)),new Date(new Date().setHours(0, 0, 0, 0)));
+
 class CGetResourcesArgs {
   constructor(public userCredentials: IUserCredentials, public sourceCredentials: ISourceCredentials, getresourcesparam: IGetResourcesParams, pagingparam: IPagingParams, detail: EDetail) { }
 }
 
-
-//const userCreds: IUserCredentials = defaultUserCreds;
 const sourceCreds: ISourceCredentials = defaultSourceCreds;
-// TODO need to convert Date object to string representation so it can be consumed by soapClient
-const getResourcesParams: IGetResourcesParams = defaultGetResourceParams;
+
+const getResourcesParams: IGetResourcesParams = (new CGetResourcesParams(0,1,new Date(new Date().setHours(0, 0, 0, 0)),new Date(new Date().setHours(0, 0, 0, 0)))).stringy();
+//const getResourcesParams: IGetResourcesParams = defaultGetResourceParams;
 const pagingParams: IPagingParams = defaultPagingparams;
-const getResourceArgs: IGetResourcesParams = Object.assign(sourceCreds, getResourcesParams, pagingParams);
+const getResourceArgs: object = {
+  Request: Object.assign(sourceCreds, getResourcesParams, pagingParams)
+}
 
 soap.createClient(wsdlUrl, (err, client): void => {
-  /* const get_resources_args = {
-    Request:
-      {
-        SourceCredentials:
-          {
-            SourceName: 'LissomeHongKongLimited',
-            Password: 'oHmyTX0H/pciVoPW35pwahivDsE=',
-            SiteIDs: { 'int': '-99' },
-            UserCredentials:
-              {
-                Username: 'Siteowner',
-                Password: 'apitest1234',
-                SiteIDs: { 'int': '-99' },
-                LocationID: '0'
-              }
-          },
-        XMLDetail: 'Full',
-        PageSize: '10',
-        CurrentPageIndex: '0',
-        LocationID: '0',
-        SessionTypeIDs: '2',
-        StartDateTime: '2018-04-17T14:00:00',
-        EndDateTime: '2018-04-17T20:00:00'
-      }
-  }; */
-
-  const get_resources_args = {};
-
-  let GetResources = <((get_resources_args: any, callback: (err: any, result: any, raw: any, soapHeader: any) => void) => void)>client['GetResources'];
-  GetResources(get_resources_args, (err, result, raw, soapHeader): void => { console.log(raw) });
+  let GetResources = <((get_resources_args: object, callback: (err: any, result: any, raw: any, soapHeader: any) => void) => void)>client[MBSiteCall[MBSiteCall.GetResources]];
+  GetResources(getResourceArgs, (err, result, raw, soapHeader): void => { console.log(client.lastRequest); console.log(raw) });
 
   //console.log(JSON.stringify(client.describe(),null,4));
   //console.log(Object.keys(client));
-  //console.log(Object.getOwnPropertyDescriptor(client,'GetResources'));
+  //console.log(Object.getOwnPropertyDescriptor(client,MBSiteCall.GetResources));
 
-  //client['GetResources'](args,(err: any, result: any, raw: any, soapHeader: any) );
-  //client['GetResources'](args,(err :any, result :any, raw :any, soapHeader:any ) :void => {console.log(result)})
+  //client[MBSiteCall.GetResources](args,(err: any, result: any, raw: any, soapHeader: any) );
+  //client[MBSiteCall.GetResources](args,(err :any, result :any, raw :any, soapHeader:any ) :void => {console.log(result)})
 
 });
+
+
+/* function isValidDate<T>(date: T) {
+  return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(<any>date);
+} */
