@@ -12,7 +12,7 @@
             // "program": "${workspaceFolder}/mbsoaptest.js",
             "program": "${file}",
             "outFiles": [
-                "${workspaceFolder}/**/*.js"
+                "${workspaceFolder}/src/**/*.js"
             ]
         }
     ]

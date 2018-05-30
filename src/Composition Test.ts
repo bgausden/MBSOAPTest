@@ -36,23 +36,33 @@ function addPagingInfo<TBase extends Constructor>(Base: TBase) {
 
 function addUserCredentials<TBase extends Constructor>(Base: TBase) {
     return class extends Base {
-        userCredentials!: {
-            userName: string,
-            password: string,
-            siteIDs: number[],
-            locationID: number,
-        }
+        userName!: string;
+        password!: string;
+        siteIDs!: number[];
+        locationID: number = 0;
         constructor(...args: any[]) {
             super(...args);
         }
 
         initUserCredentials(userName: string, password: string, siteIDs: number[], locationID: number) {
-            this.userCredentials = {
-                userName: userName,
-                password: password,
-                siteIDs: siteIDs,
-                locationID: locationID
-            }
+            this.userName = userName;
+            this.password = password;
+            this.siteIDs = siteIDs;
+            this.locationID = locationID;
+        }
+
+        objectifyUserCredentials = (): object => {
+            return (
+                {
+                    UserCredentials: {
+                        Username: this.userName,
+                        Password: this.password,
+                        SiteIDs: {
+                            int: this.siteIDs[0]
+                        }
+                    }
+                }
+            )
         }
     }
 }
@@ -65,26 +75,36 @@ function addSourceCredentials<TBase extends Constructor>(Base: TBase) {
         }
 
         initSourceCredentials(sourceName: string, password: string, siteIDs: number[]) {
-            this.sourceCredentials.sourceName = sourceName;
-            this.sourceCredentials.password = password;
-            this.sourceCredentials.siteIDs = siteIDs;
+            this.sourceCredentials = new CSourceCredentialsDetail(sourceName, password, siteIDs);
+        }
+
+        objectifySourceCredentials = (): object => {
+            return ({
+                SourceCredentials: {
+                    SourceName: this.sourceCredentials.sourceName,
+                    Password: this.sourceCredentials.password,
+                    SiteIDs: {
+                        int: this.sourceCredentials.siteIDs[0],
+                    }
+                }
+            })
         }
     }
 }
 
 interface IGetResourcesParam {
     locationID: number;
-    sessionTypeIDs: { "int": number };
+    sessionTypeIDs: number[];
     startDateTime: Date;
     endDateTime: Date;
 }
 
 class CGetResourcesParam implements IGetResourcesParam {
     locationID: number = 0;
-    sessionTypeIDs!: { "int": number };
+    sessionTypeIDs!: number[];
     startDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0));
     endDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0))
-    constructor(sessionTypeIDs: { "int": number }, locationIDs?: number, startDateTime?: Date, endDateTime?: Date) {
+    constructor(sessionTypeIDs: number[], locationIDs?: number, startDateTime?: Date, endDateTime?: Date) {
         if (!isUndefined(sessionTypeIDs)) { this.sessionTypeIDs = sessionTypeIDs; }
         if (!isUndefined(locationIDs)) { this.locationID = locationIDs; }
         if (!isUndefined(startDateTime)) { this.startDateTime = startDateTime; }
@@ -92,10 +112,13 @@ class CGetResourcesParam implements IGetResourcesParam {
     }
 }
 
-const CGetResourcesRequest = addUserCredentials(addPagingInfo(CGetResourcesParam));
+const CGetResourcesRequest = addSourceCredentials(addUserCredentials(addPagingInfo(CGetResourcesParam)));
 
-const defaultSessionTypeID = { "int": 1 };
-const inst = (new CGetResourcesRequest(defaultSessionTypeID));
+const testSessionTypeID = [1];
+const inst = (new CGetResourcesRequest(testSessionTypeID));
 inst.initPagingInfo(70, 0, "Full");
-inst.initUserCredentials("LissomeHongKongLimited", "oHmyTX0H/pciVoPW35pwahivDsE=", [-99], 0);
-console.log(inst);
+inst.initUserCredentials("Siteowner", "apitest1234", [-99], 0);
+inst.initSourceCredentials("LissomeHongKongLimited", "oHmyTX0H/pciVoPW35pwahivDsE=", [-99])
+console.log(inst.objectifySourceCredentials());
+console.log("Done.");
+
