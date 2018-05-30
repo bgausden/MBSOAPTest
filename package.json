@@ -10,9 +10,10 @@
     "license": "ISC",
     "devDependencies": {
         "@types/bluebird-global": "^3.5.5",
-        "@types/node": "^9.6.7",
+        "@types/node": "^9.6.19",
         "bluebird": "^3.5.1",
         "soap": "^0.23.0",
+        "ts-node": "^6.0.5",
         "typescript": "^2.8.3"
     },
     "dependencies": {
