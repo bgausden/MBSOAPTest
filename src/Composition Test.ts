@@ -1,4 +1,4 @@
-import { isUndefined } from "util";
+// import { isUndefined } from "util";
 
 type TXMLDetail = "Full" | "Basic" | "Bare";
 type MBSOAPCall = "GetResources";
@@ -101,21 +101,20 @@ interface IGetResourcesParam {
 
 class CGetResourcesParam implements IGetResourcesParam {
     locationID: number = 0;
-    sessionTypeIDs!: number[];
+    sessionTypeIDs: number[];
     startDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0));
-    endDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0))
-    constructor(sessionTypeIDs: number[], locationIDs?: number, startDateTime?: Date, endDateTime?: Date) {
-        if (!isUndefined(sessionTypeIDs)) { this.sessionTypeIDs = sessionTypeIDs; }
-        if (!isUndefined(locationIDs)) { this.locationID = locationIDs; }
-        if (!isUndefined(startDateTime)) { this.startDateTime = startDateTime; }
-        if (!isUndefined(endDateTime)) { this.endDateTime = endDateTime; }
+    endDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0));
+    constructor(sessionTypeIDs: number[], locationIDs: number, startDateTime: Date,endDateTime: Date) {
+        this.sessionTypeIDs = sessionTypeIDs;
+        this.locationID = locationIDs;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;  
     }
 }
 
 const CGetResourcesRequest = addSourceCredentials(addUserCredentials(addPagingInfo(CGetResourcesParam)));
 
-const testSessionTypeID = [1];
-const inst = (new CGetResourcesRequest(testSessionTypeID));
+const inst = (new CGetResourcesRequest([1],0,new Date(new Date().setHours(0, 0, 0, 0)),new Date(new Date().setHours(11, 59, 59, 0))));
 inst.initPagingInfo(70, 0, "Full");
 inst.initUserCredentials("Siteowner", "apitest1234", [-99], 0);
 inst.initSourceCredentials("LissomeHongKongLimited", "oHmyTX0H/pciVoPW35pwahivDsE=", [-99])
