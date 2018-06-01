@@ -1,3 +1,4 @@
+/* tslint:disable */
 // import { isUndefined } from "util";
 
 type TXMLDetail = "Full" | "Basic" | "Bare";
@@ -104,17 +105,17 @@ class CGetResourcesParam implements IGetResourcesParam {
     sessionTypeIDs: number[];
     startDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0));
     endDateTime: Date = new Date(new Date().setHours(0, 0, 0, 0));
-    constructor(sessionTypeIDs: number[], locationIDs: number, startDateTime: Date,endDateTime: Date) {
+    constructor(sessionTypeIDs: number[], locationIDs: number, startDateTime: Date, endDateTime: Date) {
         this.sessionTypeIDs = sessionTypeIDs;
         this.locationID = locationIDs;
         this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;  
+        this.endDateTime = endDateTime;
     }
 }
 
 const CGetResourcesRequest = addSourceCredentials(addUserCredentials(addPagingInfo(CGetResourcesParam)));
 
-const inst = (new CGetResourcesRequest([1],0,new Date(new Date().setHours(0, 0, 0, 0)),new Date(new Date().setHours(11, 59, 59, 0))));
+const inst = (new CGetResourcesRequest([1], 0, new Date(new Date().setHours(0, 0, 0, 0)), new Date(new Date().setHours(11, 59, 59, 0))));
 inst.initPagingInfo(70, 0, "Full");
 inst.initUserCredentials("Siteowner", "apitest1234", [-99], 0);
 inst.initSourceCredentials("LissomeHongKongLimited", "oHmyTX0H/pciVoPW35pwahivDsE=", [-99])

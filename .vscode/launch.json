@@ -9,10 +9,9 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            // "program": "${workspaceFolder}/mbsoaptest.js",
             "program": "${file}",
             "outFiles": [
-                "${workspaceFolder}/src/**/*.js"
+                "${workspaceFolder}/dist/**/*.js"
             ]
         }
     ]
