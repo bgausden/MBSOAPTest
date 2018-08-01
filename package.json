@@ -9,12 +9,12 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "@types/node": "^9.6.24",
         "@types/bluebird": "^3.5.23",
+        "@types/node": "^9.6.25",
         "bluebird": "^3.5.1",
         "eslint": "^4.19.1",
         "eslint-config-google": "^0.9.1",
-        "soap": "^0.23.0",
+        "soap": "^0.24.0",
         "ts-node": "^6.2.0",
         "typescript": "^3.0.1"
     },
