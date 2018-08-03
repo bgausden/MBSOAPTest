@@ -1,4 +1,5 @@
 import soap = require("soap");
+let xmlformat = require("xml-formatter");
 let Promise = require("bluebird");
 
 type TPageDetail = "Full" | "Basic" | "Bare";
@@ -16,6 +17,7 @@ type MBSiteCall =
 
 const MBAPIKey = "74b68c31704e40a69e9e60e1ef1de765";
 const midnight = new Date(new Date().setHours(0, 0, 0, 0));
+const now = new Date(Date.now());
 const defaultLocation = 0;
 const defaultSiteID = -99;
 const defaultUserPassword = "apitest1234";
@@ -79,6 +81,22 @@ interface IGetResourcesParams {
   stringy?: () => IGetResourcesParams;
 }
 
+interface IGetAppointmentsParamsInternal {
+  locationIDs: number;
+  staffIDs: number;
+  startDateTime: Date;
+  endDateTime: Date;
+  ignorePrepFinishTimes: boolean;
+}
+
+interface IGetAppointmentsParamsExternal {
+  LocationIDs: {int: number};
+  StaffIDs: {long: number};
+  StartDate: string;
+  EndDate: string;
+  IgnorePrepFinishTimes: boolean;
+}
+
 const defaultGetResourceParams: IGetResourcesParams = {
   enddatetime: midnight,
   locationid: 0,
@@ -93,7 +111,8 @@ interface IPagingParams {
   currentpageindex: number;
 }
 
-interface ISOAPGetResourcesArgs {
+// Deprecated in favour of API Key in HTTP headers
+/* interface ISOAPGetResourcesArgs {
   Request: {
     SourceCredentials: ISourceCredentials;
     UserCredentials: IUserCredentials;
@@ -105,7 +124,7 @@ interface ISOAPGetResourcesArgs {
     PageSize: number;
     CurrentPageIndex: number;
   };
-}
+} */
 
 interface Resource {
   ID: number;
@@ -157,6 +176,26 @@ class CGetResourcesParams implements IGetResourcesParams {
   }
 }
 
+class CGetAppointmentsParams implements IGetAppointmentsParamsInternal {
+  constructor(
+    public locationIDs: number,
+    public staffIDs: number,
+    public startDateTime: Date,
+    public endDateTime: Date,
+    public ignorePrepFinishTimes: boolean
+  ) {}
+  
+  public toString(): IGetAppointmentsParamsExternal {
+    return {
+      EndDate: this.endDateTime.toJSON(),
+      IgnorePrepFinishTimes: this.ignorePrepFinishTimes,
+      LocationIDs: {int: this.locationIDs},
+      StaffIDs: {long: this.staffIDs},
+      StartDate: this.startDateTime.toJSON()
+    };
+  }
+}
+
 interface ISoapMethodCallback {
   (err: any, result: any, raw: any, soapHeader: any): void;
 }
@@ -168,17 +207,29 @@ const getResourcesParams: IGetResourcesParams = new CGetResourcesParams(
   midnight
 ).stringy();
 
+const getAppointmentsParams: IGetAppointmentsParamsExternal = new CGetAppointmentsParams(
+  0,
+  0,
+  now,
+  now,
+  false
+).toString();
+
 const pagingParams: IPagingParams = defaultPagingparams;
 const getResourcesArgs: object = {
   Request: Object.assign(getResourcesParams, pagingParams)
 };
+const getAppointmentsArgs: object = {
+  Request: Object.assign(getAppointmentsParams, pagingParams)
+};
 
 const options: soap.IOptions = {
-  disableCache: false,
-  wsdl_headers: {
+  disableCache: false
+  // This doesn't appear to work but client.addHttpHeader() *does*
+  /* wsdl_headers: {
     "API-key": MBAPIKey,
     SiteId: defaultSiteID
-  }
+  } */
 };
 
 function createSoapClientAsync(wsdlURL: string): Promise<soap.Client> {
@@ -206,10 +257,11 @@ let getScheduleItemsResult: object = {};
 
 appointmentClientPromise.then(client => {
   let getScheduleItems = client.GetScheduleItems as soap.ISoapMethod;
-  getScheduleItems(undefined, (_err, result, _raw, _soapHeader) => {
-    console.log(`${JSON.stringify(client.describe(), undefined, 2)}`);
+  getScheduleItems(getAppointmentsArgs, (_err, result, _raw, _soapHeader) => {
+    console.log(`err: \n\n${JSON.stringify(_err, undefined, 2)}`);
+    console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+    console.log(`lastRequest: \n\n${xmlformat(client.lastRequest)}\n`);
   });
-  //console.log(`result: ${JSON.stringify(client.describe(), undefined, 2)}`);
   appointmentClientPromise.catch((reason: any) => {
     throw new Error(reason as string);
   });
@@ -231,9 +283,7 @@ siteClientPromise.catch((reason: any) => {
   throw new Error(reason as string);
 });
  */
-
-console.log("Done async");
-
+console.log(`Done async\n`);
 
 /* function getResourcesAsync(): Promise<any> {
   return new Promise((resolve: any, reject: any) => {
