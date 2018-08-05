@@ -1,6 +1,7 @@
+// tslint:disable max-classes-per-file callable-types interface-over-type-literal
+import Promise from "bluebird";
 import soap = require("soap");
-let xmlformat = require("xml-formatter");
-let Promise = require("bluebird");
+import {format} from "xml-formatter";
 
 type TPageDetail = "Full" | "Basic" | "Bare";
 type MBSiteCall =
@@ -17,68 +18,83 @@ type MBSiteCall =
 
 const MBAPIKey = "74b68c31704e40a69e9e60e1ef1de765";
 const midnight = new Date(new Date().setHours(0, 0, 0, 0));
-const now = new Date(Date.now());
-const defaultLocation = 0;
-const defaultSiteID = -99;
+const defaultStartDate = new Date(Date.now());
+const defaultEndDate = new Date(Date.now());
+const defaultLocationIDs = 0;
+const defaultSiteIDs = -99;
 const defaultUserPassword = "apitest1234";
 const defaultUsername = "Siteowner";
+const defaultIgnorePrepFinishTimes = false;
+const defaultStaffIDs = 0;
+const defaultSessionTypeIDs = 1;
+const defaultSourceName = "LissomeHongKongLimited";
+const defaultSourcePassword = "oHmyTX0H/pciVoPW35pwahivDsE=";
 
 const siteWSDLURL =
   "https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl";
 const appointmentWSDLURL =
   "https://api.mindbodyonline.com/0_5_1/AppointmentService.asmx?wsdl";
 
-const defaultUserCreds = {
-  locationid: defaultLocation,
-  password: defaultUserPassword,
-  siteids: [defaultSiteID],
-  username: defaultUsername
-};
-
-const defaultPagingparams = {
+const defaultPagingParams = {
   currentpageindex: 0,
-  pagesize: 10
+  pagesize: 10,
 };
 
-const defaultDetail: TPageDetail = "Full";
+type TXMLDetail = {XMLDetail: TPageDetail };
 
-interface IUserCredentials {
-  username: string;
-  password: string;
-  siteids: number[];
-  locationid: number;
+const defaultPageDetail: TXMLDetail = {XMLDetail: "Bare"};
+
+interface IUserCredentialsExternal {
+  UserCredentials: {
+    Username: string;
+    Password: string;
+    SiteIDs: { int: number }
+  };
 }
 
-interface IMBSOAPUserCredentials {
+interface IUserCredentialsInternal {
   username: string;
   password: string;
-  siteids: number[];
-  locationid: number;
+  siteids: number;
+  toString?: () => IUserCredentialsExternal;
 }
 
-interface ISourceCredentials {
+interface ISourceCredentialsExternal {
+  SourceCredentials: {
+    SourceName: string;
+    Password: string;
+    SiteIDs: { int: number }
+  };
+}
+
+interface ISourceCredentialsInternal {
   sourcename: string;
   password: string;
-  siteids: {
-    int: number;
-  };
-  usercredentials: IUserCredentials;
+  siteIDs: number;
+  toString?: () => ISourceCredentialsExternal;
 }
 
 class CSessionTypeIDs {
   constructor(typeIDs: number[]) {
     return {
-      SessionTypeIDs: typeIDs
+      SessionTypeIDs: typeIDs,
     };
   }
 }
 
-interface IGetResourcesParams {
+interface IGetResourcesParamsExternal {
+  LocationIDs: number;
+  SessionTypeIDs: number;
+  StartDateTime: string;
+  EndDateTime: string;
+}
+
+interface IGetResourcesParamsInternal {
   locationid: number;
-  sessiontypeids: CSessionTypeIDs;
-  startdatetime: Date | string;
-  enddatetime: Date | string;
-  stringy?: () => IGetResourcesParams;
+  sessiontypeids: number;
+  startdatetime: Date;
+  enddatetime: Date;
+  toString?: () => IGetResourcesParamsExternal;
 }
 
 interface IGetAppointmentsParamsInternal {
@@ -89,22 +105,13 @@ interface IGetAppointmentsParamsInternal {
   ignorePrepFinishTimes: boolean;
 }
 
-interface IGetAppointmentsParamsExternal {
-  LocationIDs: {int: number};
-  StaffIDs: {long: number};
+interface IGetScheduleItemsParamsExternal {
+  LocationIDs: { int: number };
+  StaffIDs: { long: number };
   StartDate: string;
   EndDate: string;
   IgnorePrepFinishTimes: boolean;
 }
-
-const defaultGetResourceParams: IGetResourcesParams = {
-  enddatetime: midnight,
-  locationid: 0,
-  sessiontypeids: {
-    SessionTypeIDs: 1
-  },
-  startdatetime: midnight
-};
 
 interface IPagingParams {
   pagesize: number;
@@ -126,57 +133,101 @@ interface IPagingParams {
   };
 } */
 
-interface Resource {
+interface IResource {
   ID: number;
   Name: string;
 }
 
-interface Resources {
-  Resource: Resource[];
+interface IResources {
+  Resource: IResource[];
 }
 
-interface GetResourcesResult {
+interface IGetResourcesResult {
   Status: string;
   ErrorCode: number;
   XMLDetail: string;
   ResultCount: number;
   CurrentPageIndex: number;
   TotalPageCount: number;
-  Resources: Resources;
+  Resources: IResources;
 }
 
-interface RootObject {
-  GetResourcesResult: GetResourcesResult;
+interface IRootObject {
+  GetResourcesResult: IGetResourcesResult;
 }
 
-class CUserCredentials implements IUserCredentials {
+class CUserCredentials implements IUserCredentialsInternal {
   constructor(
     public username: string,
     public password: string,
-    public siteids: number[],
-    public locationid: number
-  ) {}
-}
-
-class CGetResourcesParams implements IGetResourcesParams {
-  constructor(
-    public locationid: number,
-    public sessiontypeids: CSessionTypeIDs,
-    public startdatetime: Date,
-    public enddatetime: Date
-  ) {}
-
-  public stringy(): IGetResourcesParams {
+    public siteids: number
+  ) { }
+  public toString(): IUserCredentialsExternal {
     return {
-      enddatetime: this.enddatetime.toJSON(),
-      locationid: this.locationid,
-      sessiontypeids: this.sessiontypeids,
-      startdatetime: this.startdatetime.toJSON()
+      UserCredentials: {
+        Password: this.password,
+        SiteIDs: { int: this.siteids },
+        Username: this.username,
+      },
     };
   }
 }
 
-class CGetAppointmentsParams implements IGetAppointmentsParamsInternal {
+class CSourceCredentials implements ISourceCredentialsInternal {
+  constructor(
+    public sourcename: string,
+    public password: string,
+    public siteIDs: number
+  ) { }
+  public toString(): ISourceCredentialsExternal {
+    return {
+      SourceCredentials: {
+        Password: this.password,
+        SiteIDs: { int: this.siteIDs },
+        SourceName: this.sourcename,
+      },
+    };
+  }
+}
+
+const defaultUserCredentials = new CUserCredentials(
+  defaultUsername,
+  defaultUserPassword,
+  defaultSiteIDs
+).toString();
+
+const defaultSourceCredentials: ISourceCredentialsExternal = new CSourceCredentials(
+  defaultSourceName,
+  defaultSourcePassword,
+  defaultSiteIDs
+).toString();
+
+class CGetResourcesParams implements IGetResourcesParamsInternal {
+  constructor(
+    public locationid: number,
+    public sessiontypeids: number,
+    public startdatetime: Date,
+    public enddatetime: Date
+  ) {}
+
+  public toString(): IGetResourcesParamsExternal {
+    return {
+      EndDateTime: this.enddatetime.toJSON(),
+      LocationIDs: this.locationid,
+      SessionTypeIDs: this.sessiontypeids,
+      StartDateTime: this.startdatetime.toJSON(),
+    };
+  }
+}
+
+const defaultGetResourceParams: IGetResourcesParamsExternal = new CGetResourcesParams (
+  defaultLocationIDs,
+  defaultSessionTypeIDs,
+  midnight,
+  midnight
+).toString();
+
+class CGetScheduleItemsParams implements IGetAppointmentsParamsInternal {
   constructor(
     public locationIDs: number,
     public staffIDs: number,
@@ -184,47 +235,48 @@ class CGetAppointmentsParams implements IGetAppointmentsParamsInternal {
     public endDateTime: Date,
     public ignorePrepFinishTimes: boolean
   ) {}
-  
-  public toString(): IGetAppointmentsParamsExternal {
+  public toString(): IGetScheduleItemsParamsExternal {
     return {
       EndDate: this.endDateTime.toJSON(),
       IgnorePrepFinishTimes: this.ignorePrepFinishTimes,
-      LocationIDs: {int: this.locationIDs},
-      StaffIDs: {long: this.staffIDs},
-      StartDate: this.startDateTime.toJSON()
+      LocationIDs: { int: this.locationIDs },
+      StaffIDs: { long: this.staffIDs },
+      StartDate: this.startDateTime.toJSON(),
     };
   }
 }
 
-interface ISoapMethodCallback {
-  (err: any, result: any, raw: any, soapHeader: any): void;
-}
-
-const getResourcesParams: IGetResourcesParams = new CGetResourcesParams(
-  0,
-  1,
+const defaultGetResourcesParams: IGetResourcesParamsExternal = new CGetResourcesParams(
+  defaultLocationIDs,
+  defaultSessionTypeIDs,
   midnight,
-  midnight
-).stringy();
+  midnight).toString();
 
-const getAppointmentsParams: IGetAppointmentsParamsExternal = new CGetAppointmentsParams(
-  0,
-  0,
-  now,
-  now,
-  false
+const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetScheduleItemsParams(
+  defaultLocationIDs,
+  defaultStaffIDs,
+  defaultStartDate,
+  defaultEndDate,
+  defaultIgnorePrepFinishTimes
 ).toString();
 
-const pagingParams: IPagingParams = defaultPagingparams;
 const getResourcesArgs: object = {
-  Request: Object.assign(getResourcesParams, pagingParams)
-};
-const getAppointmentsArgs: object = {
-  Request: Object.assign(getAppointmentsParams, pagingParams)
+  Request: Object.assign(defaultGetResourcesParams, defaultPagingParams),
 };
 
+// required appt args appear to be SourceCredential + UserCredentials + PagingDetails + DetailLevel
+// + StaffIDs + LocationID + (optional) StartDate + (optional) EndDate
+// note this is *not* consistent with the MB documentation but empirically, this is what works
+const getScheduleItemsArgs: IGetScheduleItemsParamsExternal =  Object.assign(
+  defaultSourceCredentials,
+  defaultUserCredentials,
+  defaultGetScheduleItemsParams,
+  defaultPagingParams,
+  defaultPageDetail
+);
+
 const options: soap.IOptions = {
-  disableCache: false
+  disableCache: false,
   // This doesn't appear to work but client.addHttpHeader() *does*
   /* wsdl_headers: {
     "API-key": MBAPIKey,
@@ -232,36 +284,51 @@ const options: soap.IOptions = {
   } */
 };
 
+type TSoapRequest = {
+  Request: IGetResourcesParamsExternal|IGetScheduleItemsParamsExternal
+};
+
+function request(params: IGetResourcesParamsExternal|IGetScheduleItemsParamsExternal): TSoapRequest {
+  // return an Object with one property "Request" whose value is the param Object
+  return {Request: params};
+}
+
 function createSoapClientAsync(wsdlURL: string): Promise<soap.Client> {
   return new Promise((resolve: any, reject: any) => {
     soap.createClient(
       wsdlURL,
       (err: any, client: soap.Client): void => {
         client.addHttpHeader("API-key", MBAPIKey);
-        client.addHttpHeader("SiteId", defaultSiteID);
-        if (err) reject(new Error(err));
-        else resolve(client);
+        client.addHttpHeader("SiteId", defaultSiteIDs);
+        if (err) {
+          reject(new Error(err));
+        } else {
+          resolve(client);
+        }
       }
     );
   });
 }
 
-let siteClientPromise: Promise<soap.Client> = createSoapClientAsync(
+const siteClientPromise: Promise<soap.Client> = createSoapClientAsync(
   siteWSDLURL
 );
-let appointmentClientPromise: Promise<soap.Client> = createSoapClientAsync(
+const appointmentClientPromise: Promise<soap.Client> = createSoapClientAsync(
   appointmentWSDLURL
 );
 
-let getScheduleItemsResult: object = {};
+interface ISoapMethodCallback { (err: any, result: object, raw: any, soapHeader: any): void; }
 
-appointmentClientPromise.then(client => {
-  let getScheduleItems = client.GetScheduleItems as soap.ISoapMethod;
-  getScheduleItems(getAppointmentsArgs, (_err, result, _raw, _soapHeader) => {
-    console.log(`err: \n\n${JSON.stringify(_err, undefined, 2)}`);
-    console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
-    console.log(`lastRequest: \n\n${xmlformat(client.lastRequest)}\n`);
-  });
+const getScheduleItemsCallback: ISoapMethodCallback = (err, result, raw, soapHeader) => {
+  console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
+  console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+  // you cannot access client in this context
+  // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
+};
+
+appointmentClientPromise.then((client) => {
+  const getScheduleItems = client.GetScheduleItems as soap.ISoapMethod;
+  getScheduleItems(request(getScheduleItemsArgs), getScheduleItemsCallback);
   appointmentClientPromise.catch((reason: any) => {
     throw new Error(reason as string);
   });
