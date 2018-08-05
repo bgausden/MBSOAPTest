@@ -11,7 +11,7 @@ class CSourceCredentialsDetail {
     password: string;
     siteIDs: number[];
 
-    constructor(sourceName: string, password: string, siteIDs: number[]) {
+    constructor(sourceName: string, password: string, siteIDs: number) {
         this.sourceName = sourceName;
         this.password = password;
         this.siteIDs = siteIDs;
