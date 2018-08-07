@@ -17,7 +17,8 @@
               },
               "esSpecCompliant": true
             }
-          ]
+          ],
+          "indent": [true, "spaces", 4]
     },
     "rulesDirectory": []
 }
