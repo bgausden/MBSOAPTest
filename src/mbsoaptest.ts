@@ -1,7 +1,9 @@
 // tslint:disable max-classes-per-file callable-types interface-over-type-literal
 import Promise from "bluebird";
-import soap = require("soap");
-import {format} from "xml-formatter";
+import {
+    catAppointment,
+    catGetScheduleItems
+} from "./typescript-logging-config";
 
 type TPageDetail = "Full" | "Basic" | "Bare";
 type MBSiteCall =
@@ -321,14 +323,35 @@ interface ISoapMethodCallback { (err: any, result: object, raw: any, soapHeader:
 
 const getScheduleItemsCallback: ISoapMethodCallback = (err, result, raw, soapHeader) => {
   console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
-  console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+    //console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+    catGetScheduleItems.debug(
+        () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}`
+    );
   // you cannot access client in this context
   // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 };
 
 appointmentClientPromise.then((client) => {
   const getScheduleItems = client.GetScheduleItems as soap.ISoapMethod;
-  getScheduleItems(request(getScheduleItemsArgs), getScheduleItemsCallback);
+    getScheduleItems(
+        request(getScheduleItemsArgs),
+        (err, result, raw, soapHeader) => {
+            console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
+            //console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+            catGetScheduleItems.debug(
+                () =>
+                    `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
+            );
+            catGetScheduleItems.debug(
+                () =>
+                    `\n\nlastRequest: \n\n${JSON.stringify(
+                        xmlformatter.format(client.lastRequest),
+                        undefined,
+                        2
+                    )}\n`
+            );
+        }
+    );
   appointmentClientPromise.catch((reason: any) => {
     throw new Error(reason as string);
   });
