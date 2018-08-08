@@ -1,8 +1,8 @@
  import {
     Category,
+    CategoryConfiguration,
     CategoryLogger,
     CategoryServiceFactory,
-    CategoryConfiguration,
     LogLevel
   } from "typescript-logging";
 
@@ -14,4 +14,6 @@ CategoryServiceFactory.setDefaultConfiguration(
 
   // Create categories, they will autoregister themselves, one category without parent (root) and a child category.
   export const catAppointment = new Category("Appointment");
+  export const catSite = new Category("Site");
   export const catGetScheduleItems = new Category("GetScheduleItems", catAppointment);
+  export const catGetStaffAppointments = new Category("GetStaffAppointments", catAppointment);
