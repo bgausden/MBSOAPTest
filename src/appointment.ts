@@ -1,4 +1,5 @@
 import * as defaults from "./defaults";
+import { TSoapRequest } from "./mbsoap";
 
 export type TMBAppointmentMethod = "GetStaffAppointments" | "GetScheduleItems";
 
@@ -59,23 +60,35 @@ export const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = ne
 // required getScheduleItems args appear to be SourceCredentials + UserCredentials + PagingDetails + DetailLevel
 // + StaffIDs + LocationID + (optional) StartDate + (optional) EndDate
 // note this is *not* consistent with the MB documentation but empirically, this is what works
-export const getScheduleItemsArgs: IGetScheduleItemsParamsExternal = Object.assign(
+export const defaultGetScheduleItemsRequest: TSoapRequest = {
+    Request: Object.assign(
     defaults.defaultSourceCredentials,
     defaults.defaultUserCredentials,
     defaults.defaultPagingParams,
     defaults.defaultPageDetail,
-    defaultGetScheduleItemsParams,
+    defaultGetScheduleItemsParams
     // looks like specifying "Fields" isn't supported by the getScheduleItems call
     /* {
     Fields: {string: "ResultCount"}
   } */
-);
+)};
 
-export const getStaffAppointmentsArgs: IGetStaffAppointmentsParamsExternal = Object.assign(
+/* export const defaultGetStaffAppointmentsArgs: IGetStaffAppointmentsParamsExternal = Object.assign(
     defaults.defaultStaffCredentials,
     defaults.defaultSourceCredentials,
     defaults.defaultUserCredentials,
     defaultGetScheduleItemsParams,
     defaults.defaultPagingParams,
     defaults.defaultPageDetail
-);
+); */
+
+export const defaultGetStaffAppointmentsRequest: TSoapRequest = {
+    Request: Object.assign(
+        defaults.defaultStaffCredentials,
+        defaults.defaultSourceCredentials,
+        defaults.defaultUserCredentials,
+        defaultGetScheduleItemsParams,
+        defaults.defaultPagingParams,
+        defaults.defaultPageDetail
+    )
+};

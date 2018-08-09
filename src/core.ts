@@ -1,7 +1,10 @@
 // tslint:disable max-classes-per-file callable-types interface-over-type-literal
+import * as appointment from "./appointment";
+import * as site from "./site";
 
 export type TPageDetail = "Full" | "Basic" | "Bare";
 export type TXMLDetail = { XMLDetail: TPageDetail };
+export type TPagingParams = { CurrentPageIndex: number, PageSize: number};
 export type TMBServices = "Site" | "Appointment";
 
 export interface IUserCredentialsExternal {
@@ -47,6 +50,7 @@ interface IPagingParams {
     pagesize: number;
     currentpageindex: number;
 }
+
 export class CSessionTypeIDs {
     constructor(typeIDs: number[]) {
         return {

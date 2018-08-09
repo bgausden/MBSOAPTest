@@ -19,7 +19,10 @@ export const defaultSessionTypeIDs = 1;
 export const defaultSourceName = "LissomeHongKongLimited";
 export const defaultSourcePassword = "oHmyTX0H/pciVoPW35pwahivDsE=";
 export const defaultPageDetail: core.TXMLDetail = { XMLDetail: "Full" };
-export const defaultPagingParams = { currentpageindex: 0, pagesize: 10 };
+export const defaultPagingParams: core.TPagingParams = { CurrentPageIndex: 0, PageSize: 10 };
+export const defaultSearchText: string  = "";
+export const defaultRelatedSiteID: string = "";
+
 export const defaultSourceCredentials: core.ISourceCredentialsExternal = new core.CSourceCredentials(
     defaults.defaultSourceName,
     defaults.defaultSourcePassword,
