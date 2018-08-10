@@ -8,12 +8,14 @@ import * as core from "./core";
 import * as defaults from "./defaults";
 import * as mbsoap from "./mbsoap";
 import * as site from "./site";
+import * as staff from "./staff";
 
 import {
   catAppointment,
   catGetScheduleItems,
   catGetStaffAppointments,
-  catSite
+  catSite,
+  catStaff
 } from "./typescript-logging-config";
 
 const options: IOptions = {
@@ -59,7 +61,10 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
 }; */
 
 const service: core.TMBServices = "Appointment";
-const serviceMethod: appointment.TMBAppointmentMethod | site.TMBSiteMethod =
+const serviceMethod:
+  | appointment.TMBAppointmentMethod
+  | site.TMBSiteMethod
+  | staff.TMBStaffMethod =
   "GetStaffAppointments";
 let parentCategory: Category;
 let loggingCategory: Category;
@@ -92,8 +97,9 @@ switch (service) {
         break;
     } // end switch serviceMethod
     break;
-  }
-  case "Appointment" as string:
+  } // end case Site
+  case "Appointment" as string: {
+    // case SOAP Service == Appointment
     clientPromise = createSoapClientAsync(appointment.appointmentWSDLURL);
     parentCategory = catAppointment;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
@@ -115,7 +121,29 @@ switch (service) {
             '"specified.'
         );
         break;
-    } // end switch serviceMethod
+    } // end switch(serviceMethod)
+    break;
+  } // end case Appointment
+  case "Staff" as string: {
+    // case SOAP Service == Staff
+    clientPromise = createSoapClientAsync(staff.staffWSDLURL);
+    parentCategory = catStaff;
+    loggingCategory = new Category("cat" + serviceMethod, parentCategory);
+    switch (serviceMethod) {
+      case "GetStaff" as string: {
+        request = staff.defaultGetStaffRequest;
+        break;
+      }
+      default:
+        throw new Error(
+          "Unknown MindBody" +
+            service +
+            'service method " ' +
+            serviceMethod +
+            '"specified.'
+        );
+    } // end switch(serviceMethod)
+  } // end case Staff
 } // end switch(service)
 
 // @ts-ignore TS2454
@@ -141,7 +169,7 @@ clientPromise.then(client => {
       loggingCategory.debug(
         // @ts-ignore TS2345:
         () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
-      )
+      );
     }
   });
   clientPromise.catch((reason: any) => {
