@@ -1,3 +1,4 @@
-declare module 'xml-formatter' {
-    export function format(unformattedXML:string): string
-} 
+declare module "xml-formatter" {
+  function format(unformattedXML: string): string;
+  export = format;
+}

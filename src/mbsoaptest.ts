@@ -2,7 +2,7 @@
 import Promise from "bluebird";
 import { Client, createClient, IOptions, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
-import * as xmlformatter from "xml-formatter";
+import xmlformat = require("xml-formatter");
 import * as appointment from "./appointment";
 import * as core from "./core";
 import * as defaults from "./defaults";
@@ -64,19 +64,23 @@ const serviceMethod: appointment.TMBAppointmentMethod | site.TMBSiteMethod =
 let parentCategory: Category;
 let loggingCategory: Category;
 let request: mbsoap.TSoapRequest;
-let MBClientPromise: () => Promise<Client>;
+// let MBClientPromise: () => Promise<Client>;
+let clientPromise: Promise<Client>;
+
 switch (service) {
-  case "Site" as string:
-    MBClientPromise = () => createSoapClientAsync(site.siteWSDLURL);
+  case "Site" as string: {
+    clientPromise = createSoapClientAsync(site.siteWSDLURL);
     parentCategory = catSite;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
-      case "GetResources" as string:
+      case "GetResources" as string: {
         request = site.defaultGetResourcesRequest;
         break;
-      case "GetSites" as string:
+      }
+      case "GetSites" as string: {
         request = site.defaultGetSitesRequest;
         break;
+      }
       default:
         throw new Error(
           "Unknown MindBody" +
@@ -88,18 +92,20 @@ switch (service) {
         break;
     } // end switch serviceMethod
     break;
+  }
   case "Appointment" as string:
-    MBClientPromise = () =>
-      createSoapClientAsync(appointment.appointmentWSDLURL);
+    clientPromise = createSoapClientAsync(appointment.appointmentWSDLURL);
     parentCategory = catAppointment;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
-      case "GetStaffAppointments" as string:
+      case "GetStaffAppointments" as string: {
         request = appointment.defaultGetStaffAppointmentsRequest;
         break;
-      case "GetScheduleItems" as string:
+      }
+      case "GetScheduleItems" as string: {
         request = appointment.defaultGetScheduleItemsRequest;
         break;
+      }
       default:
         throw new Error(
           "Unknown MindBody" +
@@ -112,23 +118,8 @@ switch (service) {
     } // end switch serviceMethod
 } // end switch(service)
 
-/* switch (serviceMethod) {
-  case "GetStaffAppointments" as string:
-    mbargs = appointment.getStaffAppointmentsArgs as any;
-    parentCategory = catAppointment;
-    loggingCategory = new Category("cat" + serviceMethod, parentCategory);
-    break;
-  case "GetResources" as string:
-    mbargs = site.getResourcesArgs as any;
-    parentCategory = catSite;
-    loggingCategory = new Category("cat" + serviceMethod, parentCategory);
-  default:
-    throw new Error("Unknown MindBody service specified.");
-    break;
-} */
-
 // @ts-ignore TS2454
-MBClientPromise().then(client => {
+clientPromise.then(client => {
   const soapMethod = client[serviceMethod] as ISoapMethod;
   soapMethod(request, (err, result, raw, soapHeader) => {
     // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
@@ -147,9 +138,13 @@ MBClientPromise().then(client => {
       loggingCategory.debug(
         () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
       );
+      loggingCategory.debug(
+        // @ts-ignore TS2345:
+        () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+      )
     }
   });
-  MBClientPromise().catch((reason: any) => {
+  clientPromise.catch((reason: any) => {
     throw new Error(reason as string);
   });
 });
