@@ -5,7 +5,8 @@ import * as site from "./site";
 export type TPageDetail = "Full" | "Basic" | "Bare";
 export type TXMLDetail = { XMLDetail: TPageDetail };
 export type TPagingParams = { CurrentPageIndex: number, PageSize: number};
-export type TMBServices = "Site" | "Appointment";
+export type TMBServices = "Site" | "Appointment" | "Staff";
+export type TStaffIDs = {long: number}; // TODO this needs to be changed so we can input more than one staffid
 
 export interface IUserCredentialsExternal {
     UserCredentials: {
@@ -109,3 +110,19 @@ export class CSourceCredentials implements ISourceCredentialsInternal {
     }
 }
 
+
+export interface IStaffIDsExternal {
+    StaffIDs: TStaffIDs;
+}
+
+export interface IStaffIDsInternal {
+    StaffIDs: number;
+    toString: () => IStaffIDsExternal;
+}
+
+export class CStaffIDs implements IStaffIDsInternal {
+    constructor(public StaffIDs: number){}
+    public toString(): IStaffIDsExternal {
+        return { StaffIDs: {long: this.StaffIDs}}
+    }
+}

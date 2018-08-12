@@ -12,9 +12,9 @@ export type TMBStaffMethod =
   | "ValidateStaffLogin";
 
 export interface IGetStaffParamsExternal {
-  StaffIDs?: number;
-  StaffCredentials: core.IStaffCredentialsExternal;
-  Filters?: string;
+  StaffCredentials?: core.IStaffCredentialsInternal;
+    StaffIDs?: { long: number };
+  Filters?: { string: string };
   SessionTypeID?: number;
   StartDateTime?: string;
   LocationID?: number;
@@ -22,8 +22,8 @@ export interface IGetStaffParamsExternal {
 }
 
 export interface IGetStaffParamsInternal {
-  lStaffIDs?: number;
-  StaffCredentials: core.IStaffCredentialsInternal;
+  StaffIDs?: core.IStaffIDsInternal;
+  StaffCredentials?: core.IStaffCredentialsInternal;
   Filters?: string;
   SessionTypeID?: number;
   StartDateTime?: string;
@@ -47,8 +47,8 @@ export interface IAddOrUpdateStaffParamsInternal {
 
 export class CGetStaffParams implements IGetStaffParamsInternal {
   constructor(
-    public StaffCredentials: core.IStaffCredentialsInternal,
-    public lStaffIDs?: number,
+    public StaffCredentials?: core.IStaffCredentialsInternal,
+    public StaffIDs?: core.IStaffIDsInternal,
     public Filters?: string,
     public SessionTypeID?: number,
     public StartDateTime?: string,
@@ -56,14 +56,20 @@ export class CGetStaffParams implements IGetStaffParamsInternal {
     public Fields?: string
   ) {}
   public toString(): IGetStaffParamsExternal {
-    const staffCreds = new core.CStaffCredentials(
-      this.StaffCredentials.username,
-      this.StaffCredentials.password,
-      this.StaffCredentials.siteids
-    );
-    const paramsExternal = { StaffCredentials: staffCreds.toString() };
-    if (this.lStaffIDs !== undefined) {
-      Object.assign(paramsExternal, { StaffIDs: this.lStaffIDs });
+    // minimal GetStaff params are one set of staff credentials
+    // initialise the GetStaff params with a staff credentials object
+    // can do this because minimum params === a staff credentials object
+    let paramsExternal = {};
+
+    if (this.StaffCredentials !== undefined) {
+      paramsExternal = new core.CStaffCredentials(
+        this.StaffCredentials.username,
+        this.StaffCredentials.password,
+        this.StaffCredentials.siteids
+      ).toString();
+    }
+    if (this.StaffIDs !== undefined) {
+      Object.assign(paramsExternal, new core.CStaffIDs(this.StaffIDs.StaffIDs).toString());
     }
     if (this.Filters !== undefined) {
       Object.assign(paramsExternal, { Filters: this.Filters });
@@ -87,10 +93,20 @@ export class CGetStaffParams implements IGetStaffParamsInternal {
 export const staffWSDLURL =
   "https://api.mindbodyonline.com/0_5_1/StaffService.asmx?wsdl";
 
-export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParams(
-  defaults.defaultStaffCredentials,  
-).toString();
+/* export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParams(
+  defaults.defaultStaffCredentials,
+  defaults.defaultStaffIDs
+).toString(); */
+
+// contrary to the documentation there are no mandatory params for Staff.GetStaff()
+// export const defaultGetStaffParams: IGetStaffParamsExternal = {};
+export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParams(undefined, defaults.defaultStaffIDs).toString();
 
 export const defaultGetStaffRequest: mbsoap.TSoapRequest = {
-  Request: Object.assign(defaultGetStaffParams, defaults.defaultLocationIDs,defaults.defaultUserCredentials, defaults.defaultPagingParams)
+  Request: Object.assign(
+    defaultGetStaffParams,
+    defaults.defaultLocationIDs,
+    defaults.defaultUserCredentials,
+    defaults.defaultPagingParams
+  )
 };

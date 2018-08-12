@@ -18,6 +18,11 @@ import {
   catStaff
 } from "./typescript-logging-config";
 
+type TServiceMethod =
+  | site.TMBSiteMethod
+  | staff.TMBStaffMethod
+  | appointment.TMBAppointmentMethod;
+
 const options: IOptions = {
   disableCache: false
 };
@@ -60,12 +65,8 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
     // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 }; */
 
-const service: core.TMBServices = "Appointment";
-const serviceMethod:
-  | appointment.TMBAppointmentMethod
-  | site.TMBSiteMethod
-  | staff.TMBStaffMethod =
-  "GetStaffAppointments";
+const service: core.TMBServices = "Staff";
+const serviceMethod: TServiceMethod = "GetStaff";
 let parentCategory: Category;
 let loggingCategory: Category;
 let request: mbsoap.TSoapRequest;
@@ -94,7 +95,6 @@ switch (service) {
             serviceMethod +
             '"specified.'
         );
-        break;
     } // end switch serviceMethod
     break;
   } // end case Site
@@ -120,7 +120,6 @@ switch (service) {
             serviceMethod +
             '"specified.'
         );
-        break;
     } // end switch(serviceMethod)
     break;
   } // end case Appointment
@@ -143,6 +142,7 @@ switch (service) {
             '"specified.'
         );
     } // end switch(serviceMethod)
+    break;
   } // end case Staff
 } // end switch(service)
 
@@ -172,8 +172,10 @@ clientPromise.then(client => {
       );
     }
   });
-  clientPromise.catch((reason: any) => {
-    throw new Error(reason as string);
-  });
 });
+// @ts-ignore TS2454
+clientPromise.catch((reason: any) => {
+  throw new Error(reason as string);
+});
+
 console.log(`Done async\n`);
