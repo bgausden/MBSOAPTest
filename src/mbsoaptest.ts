@@ -65,8 +65,8 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
     // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 }; */
 
-const service: core.TMBServices = "Staff";
-const serviceMethod: TServiceMethod = "GetStaff";
+const service: core.TMBServices = "Site";
+const serviceMethod: TServiceMethod = "GetSites";
 let parentCategory: Category;
 let loggingCategory: Category;
 let request: mbsoap.TSoapRequest;
@@ -164,11 +164,11 @@ clientPromise.then(client => {
       throw new Error(err);
     } else {
       loggingCategory.debug(
-        () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
-      );
-      loggingCategory.debug(
         // @ts-ignore TS2345:
         () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+      );
+      loggingCategory.debug(
+        () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
       );
     }
   });

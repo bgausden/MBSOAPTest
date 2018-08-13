@@ -6,7 +6,28 @@ export type TPageDetail = "Full" | "Basic" | "Bare";
 export type TXMLDetail = { XMLDetail: TPageDetail };
 export type TPagingParams = { CurrentPageIndex: number, PageSize: number};
 export type TMBServices = "Site" | "Appointment" | "Staff";
-export type TStaffIDs = {long: number}; // TODO this needs to be changed so we can input more than one staffid
+export type TStaffIDsInternal = number;
+export type TStaffIDsExternal = {long: TStaffIDsInternal}; // TODO this needs to be changed so we can input more than one staffid
+export type TLocationIDsInternal = number; // TODO this needs to be changed so we can input more than one locID
+export type TLocationIDsExternal = {int: TLocationIDsInternal}; 
+
+export interface ILocationIDsExternal {
+    LocationIDs: TLocationIDsExternal;
+}
+
+export interface ILocationIDsInternal {
+    LocationIDs: TLocationIDsInternal;
+    toString: () => ILocationIDsExternal;
+}
+
+export class CLocationIDs {
+    constructor(public LocationIDs: TLocationIDsInternal) {}
+    public toString(): ILocationIDsExternal {
+        return {
+            LocationIDs: {int: this.LocationIDs},
+        }
+    }
+};
 
 export interface IUserCredentialsExternal {
     UserCredentials: {
@@ -19,7 +40,7 @@ export interface IUserCredentialsInternal {
     username: string;
     password: string;
     siteids: number;
-    toString?: () => IUserCredentialsExternal;
+    toString: () => IUserCredentialsExternal;
 }
 export interface IStaffCredentialsExternal {
     StaffCredentials: {
@@ -32,7 +53,7 @@ export interface IStaffCredentialsInternal {
     username: string;
     password: string;
     siteids: number;
-    toString?: () => IStaffCredentialsExternal;
+    toString: () => IStaffCredentialsExternal;
 }
 export interface ISourceCredentialsExternal {
     SourceCredentials: {
@@ -45,7 +66,7 @@ export interface ISourceCredentialsInternal {
     sourcename: string;
     password: string;
     siteIDs: number;
-    toString?: () => ISourceCredentialsExternal;
+    toString: () => ISourceCredentialsExternal;
 }
 interface IPagingParams {
     pagesize: number;
@@ -110,19 +131,20 @@ export class CSourceCredentials implements ISourceCredentialsInternal {
     }
 }
 
-
 export interface IStaffIDsExternal {
-    StaffIDs: TStaffIDs;
+    StaffIDs: TStaffIDsExternal;
 }
 
 export interface IStaffIDsInternal {
     StaffIDs: number;
     toString: () => IStaffIDsExternal;
-}
+};
 
 export class CStaffIDs implements IStaffIDsInternal {
     constructor(public StaffIDs: number){}
     public toString(): IStaffIDsExternal {
         return { StaffIDs: {long: this.StaffIDs}}
     }
-}
+};
+
+

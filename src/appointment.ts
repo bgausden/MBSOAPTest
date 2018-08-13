@@ -24,40 +24,59 @@ export interface IGetStaffAppointmentsParamsExternal {
 }
 
 export interface IGetScheduleItemsParamsExternal {
-  LocationIDs: { int: number };
-  StaffIDs: core.TStaffIDs;
-  StartDate: string;
-  EndDate: string;
-  IgnorePrepFinishTimes: boolean;
+  LocationIDs?: { int: number };
+  StaffIDs?: core.TStaffIDsExternal;
+  StartDate?: string;
+  EndDate?: string;
+  IgnorePrepFinishTimes?: boolean;
 }
 
-export class CGetScheduleItemsParams implements IGetAppointmentsParamsInternal {
+export interface IGetScheduleItemsParamsInternal {
+  LocationIDs?: core.CLocationIDs;
+  StaffIDs?: core.CStaffIDs;
+  StartDate?: Date;
+  EndDate?: Date;
+  IgnorePrepFinishTimes?: boolean;
+  toString: () => IGetScheduleItemsParamsExternal;
+}
+
+export class CGetScheduleItemsParams
+  implements IGetScheduleItemsParamsInternal {
   constructor(
-    public LocationIDs: number,
-    public StaffIDs: core.CStaffIDs,
-    public StartDateTime: Date,
-    public EndDateTime: Date,
-    public IgnorePrepFinishTimes: boolean
+    public LocationIDs?: core.CLocationIDs,
+    public StaffIDs?: core.CStaffIDs,
+    public StartDate?: Date,
+    public EndDate?: Date,
+    public IgnorePrepFinishTimes?: boolean
   ) {}
   public toString(): IGetScheduleItemsParamsExternal {
-    return Object.assign(
-      {
-        EndDate: this.EndDateTime.toJSON(),
-        IgnorePrepFinishTimes: this.IgnorePrepFinishTimes,
-        LocationIDs: { int: this.LocationIDs },
-        StartDate: this.StartDateTime.toJSON()
-      },
-      this.StaffIDs.toString()
-    );
+    const params = {};
+    if (this.LocationIDs !== undefined) {Object.assign(params,{LocationIDs: this.LocationIDs.toString()})};
+    if (this.StaffIDs !== undefined) {Object.assign(params,{StaffIDs: this.StaffIDs.toString()})};
+    if (this.StartDate !== undefined) {Object.assign(params, {StartDate: JSON.stringify(this.StartDate)})};
+    if (this.EndDate !== undefined) {Object.assign(params, {EndDate: JSON.stringify(this.EndDate)})};
+    if (this.IgnorePrepFinishTimes !== undefined) {Object.assign(params, {IgnorePrepFinishTimes: JSON.stringify(this.IgnorePrepFinishTimes)})};
+    return params;
+
+/* TODO there should be a way to iterate through the props and then do the assignment.    
+   for (const p of this) {
+      if (this[p] !== undefined) {
+        params = Object.assign(params, this[p]);
+      }
+    } */
   }
 }
 
 export const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetScheduleItemsParams(
-  defaults.defaultLocationIDs,
+  // defaults.defaultLocationIDs,
+  undefined,
   defaults.defaultStaffIDs,
-  defaults.defaultStartDate,
-  defaults.defaultEndDate,
-  defaults.defaultIgnorePrepFinishTimes
+  // defaults.defaultStartDate,
+  undefined,
+  // defaults.defaultEndDate,
+  undefined,
+  // defaults.defaultIgnorePrepFinishTimes,
+  undefined,
 ).toString();
 
 // required getScheduleItems args appear to be SourceCredentials + UserCredentials + PagingDetails + DetailLevel
@@ -65,8 +84,8 @@ export const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = ne
 // note this is *not* consistent with the MB documentation but empirically, this is what works
 export const defaultGetScheduleItemsRequest: TSoapRequest = {
   Request: Object.assign(
-    defaults.defaultSourceCredentials,
-    defaults.defaultUserCredentials,
+    defaults.defaultSourceCredentials.toString(),
+    defaults.defaultUserCredentials.toString(),
     defaults.defaultPagingParams,
     defaults.defaultPageDetail,
     defaultGetScheduleItemsParams
@@ -84,11 +103,12 @@ export const defaultGetScheduleItemsRequest: TSoapRequest = {
 
 export const defaultGetStaffAppointmentsRequest: TSoapRequest = {
   Request: Object.assign(
-    defaults.defaultStaffCredentials,
-    defaults.defaultSourceCredentials,
-    defaults.defaultUserCredentials,
+    defaults.defaultStaffCredentials.toString(),
+    defaults.defaultSourceCredentials.toString(),
+    defaults.defaultUserCredentials.toString(),
     defaultGetScheduleItemsParams,
     defaults.defaultPagingParams,
-    defaults.defaultPageDetail
+    defaults.defaultPageDetail,
+    defaults.defaultStaffIDs.toString()
   )
 };

@@ -8,12 +8,13 @@ export const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
 export const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
 export const defaultStartDate = yesterday;
 export const defaultEndDate = tomorrow;
-export const defaultLocationIDs = 0;
+export const defaultLocationID = 0;
 export const defaultSiteIDs = -99;
 export const defaultUserPassword = "apitest1234";
 export const defaultUsername = "Siteowner";
 export const defaultIgnorePrepFinishTimes = false;
 export const jonathanBolgerID = 100000296;
+export const siteOwnerID = 0;
 export const defaultStaffID = jonathanBolgerID;
 export const defaultStaffIDs = new core.CStaffIDs(defaultStaffID);
 export const defaultSessionTypeIDs = 1;
@@ -21,23 +22,27 @@ export const defaultSourceName = "LissomeHongKongLimited";
 export const defaultSourcePassword = "oHmyTX0H/pciVoPW35pwahivDsE=";
 export const defaultPageDetail: core.TXMLDetail = { XMLDetail: "Full" };
 export const defaultPagingParams: core.TPagingParams = { CurrentPageIndex: 0, PageSize: 10 };
-export const defaultSearchText: string  = "";
+export const defaultSearchText: string  = "Sandbox";
 export const defaultRelatedSiteID: string = "";
 
-export const defaultSourceCredentials: core.ISourceCredentialsExternal = new core.CSourceCredentials(
+export const defaultSourceCredentials: core.ISourceCredentialsInternal = new core.CSourceCredentials(
     defaults.defaultSourceName,
     defaults.defaultSourcePassword,
     defaults.defaultSiteIDs
-).toString();
+);
 
-export const defaultUserCredentials = new core.CUserCredentials(
+export const defaultUserCredentials: core.IUserCredentialsInternal = new core.CUserCredentials(
     defaults.defaultUsername,
     defaults.defaultUserPassword,
     defaults.defaultSiteIDs
-).toString();
+);
 
-export const defaultStaffCredentials = new core.CStaffCredentials(
+export const defaultStaffCredentials: core.IStaffCredentialsInternal = new core.CStaffCredentials(
     defaults.defaultUsername,
     defaults.defaultUserPassword,
     defaults.defaultSiteIDs
+);
+
+export const defaultLocationIDs: core.ILocationIDsInternal = new core.CLocationIDs(
+    defaults.defaultLocationID,
 );
