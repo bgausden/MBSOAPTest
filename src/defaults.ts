@@ -39,4 +39,4 @@ export const defaultStaffCredentials = new core.CStaffCredentials(
     defaults.defaultUsername,
     defaults.defaultUserPassword,
     defaults.defaultSiteIDs
-).toString();
+);
