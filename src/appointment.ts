@@ -53,8 +53,8 @@ export class CGetScheduleItemsParams
     const params = {};
     if (this.LocationIDs !== undefined) {Object.assign(params,{LocationIDs: this.LocationIDs.toString()})};
     if (this.StaffIDs !== undefined) {Object.assign(params,{StaffIDs: this.StaffIDs.toString()})};
-    if (this.StartDate !== undefined) {Object.assign(params, {StartDate: JSON.stringify(this.StartDate)})};
-    if (this.EndDate !== undefined) {Object.assign(params, {EndDate: JSON.stringify(this.EndDate)})};
+    if (this.StartDate !== undefined) {Object.assign(params, {StartDate: this.StartDate.toJSON()})};
+    if (this.EndDate !== undefined) {Object.assign(params, {EndDate: this.EndDate.toJSON()})};
     if (this.IgnorePrepFinishTimes !== undefined) {Object.assign(params, {IgnorePrepFinishTimes: JSON.stringify(this.IgnorePrepFinishTimes)})};
     return params;
 
@@ -72,9 +72,9 @@ export const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = ne
   undefined,
   defaults.defaultStaffIDs,
   // defaults.defaultStartDate,
-  undefined,
+  defaults.now,
   // defaults.defaultEndDate,
-  undefined,
+  defaults.tomorrow,
   // defaults.defaultIgnorePrepFinishTimes,
   undefined,
 ).toString();

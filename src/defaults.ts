@@ -2,6 +2,7 @@ import * as core from "./core";
 import * as defaults from "./defaults";
 
 export const MBAPIKey = "74b68c31704e40a69e9e60e1ef1de765";
+// MB SOAP API requires all dates to be expressed as Date.toJSON(). toString and friends won't work.
 export const midnight = new Date(new Date().setHours(0, 0, 0, 0));
 export const now = new Date(Date.now());
 export const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
