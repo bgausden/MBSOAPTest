@@ -13,6 +13,7 @@ CategoryServiceFactory.setDefaultConfiguration(
   );
 
   // Create categories, they will autoregister themselves, one category without parent (root) and a child category.
+  export const catUnknown = new Category("Unknown");
   export const catAppointment = new Category("Appointment");
   export const catSite = new Category("Site");
   export const catStaff = new Category("Staff");
