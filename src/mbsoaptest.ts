@@ -1,5 +1,6 @@
 // tslint:disable max-classes-per-file callable-types interface-over-type-literal
 import Promise from "bluebird";
+import prettyjson = require("prettyjson");
 import { Client, createClient, IOptions, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
 import xmlformat = require("xml-formatter");
@@ -13,9 +14,11 @@ import * as staff from "./staff";
 import {
   catAppointment,
   catGetScheduleItems,
+  catGetStaff,
   catGetStaffAppointments,
   catSite,
-  catStaff
+  catStaff,
+  catUnknown
 } from "./typescript-logging-config";
 
 type TServiceMethod =
@@ -65,8 +68,30 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
     // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 }; */
 
-const service: core.TMBServices = "Site";
-const serviceMethod: TServiceMethod = "GetSites";
+function handleResult(service: core.TMBServices, serviceMethod: site.TMBSiteMethod | appointment.TMBAppointmentMethod | staff.TMBStaffMethod, result:any):void {
+  switch (service as string) {
+    case "Appointment":
+    switch (serviceMethod as string) {
+      case "GetStaffAppointments":
+        console.log(JSON.stringify(result.GetStaffAppointmentsResult.Appointments));
+        catGetStaffAppointments.debug(() => `\n\nAppointments: \n\n${prettyjson.render(result.GetStaffAppointmentsResult.Appointments)}\n\n` );
+        break;
+    
+      default:
+      const errString: string = "Currently not able to process "+" "+ service+":"+serviceMethod;
+      catUnknown.debug(() => errString)
+      throw new Error(errString);
+        break;
+    }
+      break;
+  
+    default:
+      break;
+  }
+}
+
+const service: core.TMBServices = "Appointment";
+const serviceMethod: TServiceMethod = "GetStaffAppointments";
 let parentCategory: Category;
 let loggingCategory: Category;
 let request: mbsoap.TSoapRequest;
@@ -154,14 +179,10 @@ clientPromise.then(client => {
     // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
     if (err) {
       loggingCategory.debug(
-        () =>
-          `\n\nlastRequest: \n\n${JSON.stringify(
-            client.lastRequest,
-            undefined,
-            2
-          )}\n`
+     // @ts-ignore TS2345:
+() => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
       );
-      throw new Error(err);
+      throw new Error(JSON.stringify(err));
     } else {
       loggingCategory.debug(
         // @ts-ignore TS2345:
@@ -170,6 +191,7 @@ clientPromise.then(client => {
       loggingCategory.debug(
         () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
       );
+      handleResult(service, serviceMethod, result);
     }
   });
 });
