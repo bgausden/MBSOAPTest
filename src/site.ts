@@ -85,13 +85,13 @@ export class CGetSitesParams implements IGetSitesParamsInternal {
   [key: string]: any;
   constructor(public SearchText: string, public RelatedSiteID: string) {}
   public toString(): IGetSitesParamsExternal {
-    const p: IGetSitesParamsExternal = {};
-    for (const k of Object.keys(this)) {
-      if (this[k] != null && this[k] !== "") {
-        p[k] = this[k];
+    const getSitesParams: IGetSitesParamsExternal = {};
+    for (const key of Object.keys(this)) {
+      if (this[key] != null && this[key]  !== "") {
+        getSitesParams[key] = this[key];
       }
     }
-    return p; // {
+    return getSitesParams; // {
     // RelatedSiteID: this.RelatedSiteID,
     // SearchText: this.SearchText
     // };
