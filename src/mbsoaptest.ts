@@ -68,17 +68,17 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
     // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 }; */
 
-function handleResult(service: core.TMBServices, serviceMethod: site.TMBSiteMethod | appointment.TMBAppointmentMethod | staff.TMBStaffMethod, result:any):void {
-  switch (service as string) {
+function handleResult(svc: core.TMBServices, svcMethod: site.TMBSiteMethod | appointment.TMBAppointmentMethod | staff.TMBStaffMethod, result:any):void {
+  switch (svc as string) {
     case "Appointment":
-    switch (serviceMethod as string) {
+    switch (svcMethod as string) {
       case "GetStaffAppointments":
         console.log(JSON.stringify(result.GetStaffAppointmentsResult.Appointments));
         catGetStaffAppointments.debug(() => `\n\nAppointments: \n\n${prettyjson.render(result.GetStaffAppointmentsResult.Appointments)}\n\n` );
         break;
     
       default:
-      const errString: string = "Currently not able to process "+" "+ service+":"+serviceMethod;
+      const errString: string = "Currently not able to process "+" "+ svc+":"+svcMethod;
       catUnknown.debug(() => errString)
       throw new Error(errString);
         break;
