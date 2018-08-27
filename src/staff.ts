@@ -11,23 +11,23 @@ export type TMBStaffMethod =
   | "GetStaffImgURL"
   | "ValidateStaffLogin";
 
-  export interface IStaff {
-    SortOrder: number;
-    AppointmentTrn: boolean;
-    ReservationTrn: boolean;
-    IndependentContractor: boolean;
-    AlwaysAllowDoubleBooking: boolean;
-    ID: string;
-    Name: string;
-    FirstName: string;
-    LastName: string;
-    ImageURL: string;
-    isMale: boolean;
-  }
-  
+export interface IStaff {
+  SortOrder: number;
+  AppointmentTrn: boolean;
+  ReservationTrn: boolean;
+  IndependentContractor: boolean;
+  AlwaysAllowDoubleBooking: boolean;
+  ID: string;
+  Name: string;
+  FirstName: string;
+  LastName: string;
+  ImageURL: string;
+  isMale: boolean;
+}
+
 export interface IGetStaffParamsExternal {
   StaffCredentials?: core.IStaffCredentialsInternal;
-    StaffIDs?: { long: number };
+  StaffIDs?: { long: number };
   Filters?: { string: string };
   SessionTypeID?: number;
   StartDateTime?: string;
@@ -83,7 +83,10 @@ export class CGetStaffParams implements IGetStaffParamsInternal {
       ).toString();
     }
     if (this.StaffIDs !== undefined) {
-      Object.assign(paramsExternal, new core.CStaffIDs(this.StaffIDs.StaffIDs).toString());
+      Object.assign(
+        paramsExternal,
+        new core.CStaffIDs(this.StaffIDs.StaffIDs).toString()
+      );
     }
     if (this.Filters !== undefined) {
       Object.assign(paramsExternal, { Filters: this.Filters });
@@ -114,7 +117,10 @@ export const staffWSDLURL =
 
 // contrary to the documentation there are no mandatory params for Staff.GetStaff()
 // export const defaultGetStaffParams: IGetStaffParamsExternal = {};
-export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParams(undefined, defaults.defaultStaffIDs).toString();
+export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParams(
+  undefined,
+  defaults.defaultStaffIDs
+).toString();
 
 export const defaultGetStaffRequest: mbsoap.TSoapRequest = {
   Request: Object.assign(
