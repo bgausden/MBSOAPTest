@@ -1,15 +1,52 @@
-import * as core from "./core";
-import * as defaults from "./defaults";
+import { IClient } from "./client";
+import {
+  CLocationIDs,
+  CStaffIDs,
+  IStaffIDsInternal,
+  TStaffIDsExternal
+} from "./core";
+import {
+  defaultPageDetail,
+  defaultPagingParams,
+  defaultSourceCredentials,
+  defaultStaffCredentials,
+  defaultStaffIDs,
+  defaultUserCredentials,
+  now,
+  tomorrow
+} from "./defaults";
 import { TSoapRequest } from "./mbsoap";
+import { IProgram, IResources, ISessionType } from "./site";
+import { IStaff } from "./staff";
 
 export type TMBAppointmentMethod = "GetStaffAppointments" | "GetScheduleItems";
 
 export const appointmentWSDLURL =
   "https://api.mindbodyonline.com/0_5_1/AppointmentService.asmx?wsdl";
 
+export interface IAppointment {
+  ID: string;
+  Status: string;
+  StartDateTime: Date;
+  EndDateTime: Date;
+  Notes: string;
+  StaffRequested: boolean;
+  Program: IProgram;
+  SessionType: ISessionType;
+  Location: Location;
+  Staff: IStaff;
+  Client: IClient;
+  FirstAppointment: boolean;
+  Resources: IResources;
+}
+
+export interface IGetStaffAppointmentsResult {
+  Appointment: IAppointment[];
+}
+
 interface IGetAppointmentsParamsInternal {
   LocationIDs: number;
-  StaffIDs: core.IStaffIDsInternal;
+  StaffIDs: IStaffIDsInternal;
   StartDateTime: Date;
   EndDateTime: Date;
   IgnorePrepFinishTimes: boolean;
@@ -17,7 +54,7 @@ interface IGetAppointmentsParamsInternal {
 
 interface IGetStaffAppointmentsParamsExternal {
   LocationIDs: { int: number };
-  StaffIDs: core.IStaffIDsInternal;
+  StaffIDs: IStaffIDsInternal;
   StartDate: string;
   EndDate: string;
   IgnorePrepFinishTimes: boolean;
@@ -25,40 +62,51 @@ interface IGetStaffAppointmentsParamsExternal {
 
 export interface IGetScheduleItemsParamsExternal {
   LocationIDs?: { int: number };
-  StaffIDs?: core.TStaffIDsExternal;
+  StaffIDs?: TStaffIDsExternal;
   StartDate?: string;
   EndDate?: string;
   IgnorePrepFinishTimes?: boolean;
 }
 
 interface IGetScheduleItemsParamsInternal {
-  LocationIDs?: core.CLocationIDs;
-  StaffIDs?: core.CStaffIDs;
+  LocationIDs?: CLocationIDs;
+  StaffIDs?: CStaffIDs;
   StartDate?: Date;
   EndDate?: Date;
   IgnorePrepFinishTimes?: boolean;
   toString: () => IGetScheduleItemsParamsExternal;
 }
 
- class CGetScheduleItemsParams
-  implements IGetScheduleItemsParamsInternal {
+class CGetScheduleItemsParams implements IGetScheduleItemsParamsInternal {
   constructor(
-    public LocationIDs?: core.CLocationIDs,
-    public StaffIDs?: core.CStaffIDs,
+    public LocationIDs?: CLocationIDs,
+    public StaffIDs?: CStaffIDs,
     public StartDate?: Date,
     public EndDate?: Date,
     public IgnorePrepFinishTimes?: boolean
   ) {}
   public toString(): IGetScheduleItemsParamsExternal {
     const params = {};
-    if (this.LocationIDs !== undefined) {Object.assign(params,{LocationIDs: this.LocationIDs.toString()})};
-    if (this.StaffIDs !== undefined) {Object.assign(params,{StaffIDs: this.StaffIDs.toString()})};
-    if (this.StartDate !== undefined) {Object.assign(params, {StartDate: this.StartDate.toJSON()})};
-    if (this.EndDate !== undefined) {Object.assign(params, {EndDate: this.EndDate.toJSON()})};
-    if (this.IgnorePrepFinishTimes !== undefined) {Object.assign(params, {IgnorePrepFinishTimes: JSON.stringify(this.IgnorePrepFinishTimes)})};
+    if (this.LocationIDs !== undefined) {
+      Object.assign(params, { LocationIDs: this.LocationIDs.toString() });
+    }
+    if (this.StaffIDs !== undefined) {
+      Object.assign(params, { StaffIDs: this.StaffIDs.toString() });
+    }
+    if (this.StartDate !== undefined) {
+      Object.assign(params, { StartDate: this.StartDate.toJSON() });
+    }
+    if (this.EndDate !== undefined) {
+      Object.assign(params, { EndDate: this.EndDate.toJSON() });
+    }
+    if (this.IgnorePrepFinishTimes !== undefined) {
+      Object.assign(params, {
+        IgnorePrepFinishTimes: JSON.stringify(this.IgnorePrepFinishTimes)
+      });
+    }
     return params;
 
-/* TODO there should be a way to iterate through the props and then do the assignment.    
+    /* TODO there should be a way to iterate through the props and then do the assignment.    
    for (const p of this) {
       if (this[p] !== undefined) {
         params = Object.assign(params, this[p]);
@@ -67,16 +115,16 @@ interface IGetScheduleItemsParamsInternal {
   }
 }
 
- const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetScheduleItemsParams(
-  // defaults.defaultLocationIDs,
+const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetScheduleItemsParams(
+  // defaultLocationIDs,
   undefined,
-  defaults.defaultStaffIDs,
-  // defaults.defaultStartDate,
-  defaults.now,
-  // defaults.defaultEndDate,
-  defaults.tomorrow,
-  // defaults.defaultIgnorePrepFinishTimes,
-  undefined,
+  defaultStaffIDs,
+  // defaultStartDate,
+  now,
+  // defaultEndDate,
+  tomorrow,
+  // defaultIgnorePrepFinishTimes,
+  undefined
 ).toString();
 
 // required getScheduleItems args appear to be SourceCredentials + UserCredentials + PagingDetails + DetailLevel
@@ -84,31 +132,31 @@ interface IGetScheduleItemsParamsInternal {
 // note this is *not* consistent with the MB documentation but empirically, this is what works
 export const defaultGetScheduleItemsRequest: TSoapRequest = {
   Request: Object.assign(
-    defaults.defaultSourceCredentials.toString(),
-    defaults.defaultUserCredentials.toString(),
-    defaults.defaultPagingParams,
-    defaults.defaultPageDetail,
+    defaultSourceCredentials.toString(),
+    defaultUserCredentials.toString(),
+    defaultPagingParams,
+    defaultPageDetail,
     defaultGetScheduleItemsParams
   )
 };
 
 /* export const defaultGetStaffAppointmentsArgs: IGetStaffAppointmentsParamsExternal = Object.assign(
-    defaults.defaultStaffCredentials,
-    defaults.defaultSourceCredentials,
-    defaults.defaultUserCredentials,
+    defaultStaffCredentials,
+    defaultSourceCredentials,
+    defaultUserCredentials,
     defaultGetScheduleItemsParams,
-    defaults.defaultPagingParams,
-    defaults.defaultPageDetail
+    defaultPagingParams,
+    defaultPageDetail
 ); */
 
 export const defaultGetStaffAppointmentsRequest: TSoapRequest = {
   Request: Object.assign(
-    defaults.defaultStaffCredentials.toString(),
-    defaults.defaultSourceCredentials.toString(),
-    defaults.defaultUserCredentials.toString(),
+    defaultStaffCredentials.toString(),
+    defaultSourceCredentials.toString(),
+    defaultUserCredentials.toString(),
     defaultGetScheduleItemsParams,
-    defaults.defaultPagingParams,
-    defaults.defaultPageDetail,
-    defaults.defaultStaffIDs.toString()
+    defaultPagingParams,
+    defaultPageDetail,
+    defaultStaffIDs.toString()
   )
 };

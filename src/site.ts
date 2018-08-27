@@ -16,6 +16,41 @@ export type TMBSiteMethod =
   | "GetProspectStages"
   | "GetMobileProviders";
 
+export interface IResource {
+  ID: number;
+  Name: string;
+}
+
+export interface IResources {
+  Resource: IResource[];
+}
+
+export interface ILocation {
+  SiteID: number;
+  BusinessDescription: string;
+  AdditionalImageURLs?: any;
+  HasClasses: boolean;
+  ID: number;
+  Name: string;
+  Tax1: string;
+  Tax2: string;
+  Tax3: string;
+  Tax4: string;
+  Tax5: string;
+}
+
+export interface IProgram {
+  ID: number;
+  Name: string;
+  ScheduleType: string;
+}
+
+export interface ISessionType {
+  NumDeducted: number;
+  ID: number;
+  Name: string;
+}
+
 export interface IGetResourcesParamsExternal {
   LocationIDs: core.TLocationIDsExternal;
   SessionTypeIDs: number;
@@ -87,7 +122,7 @@ export class CGetSitesParams implements IGetSitesParamsInternal {
   public toString(): IGetSitesParamsExternal {
     const getSitesParams: IGetSitesParamsExternal = {};
     for (const key of Object.keys(this)) {
-      if (this[key] != null && this[key]  !== "") {
+      if (this[key] != null && this[key] !== "") {
         getSitesParams[key] = this[key];
       }
     }

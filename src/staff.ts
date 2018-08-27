@@ -11,6 +11,20 @@ export type TMBStaffMethod =
   | "GetStaffImgURL"
   | "ValidateStaffLogin";
 
+  export interface IStaff {
+    SortOrder: number;
+    AppointmentTrn: boolean;
+    ReservationTrn: boolean;
+    IndependentContractor: boolean;
+    AlwaysAllowDoubleBooking: boolean;
+    ID: string;
+    Name: string;
+    FirstName: string;
+    LastName: string;
+    ImageURL: string;
+    isMale: boolean;
+  }
+  
 export interface IGetStaffParamsExternal {
   StaffCredentials?: core.IStaffCredentialsInternal;
     StaffIDs?: { long: number };
