@@ -7,7 +7,7 @@ export type TMBAppointmentMethod = "GetStaffAppointments" | "GetScheduleItems";
 export const appointmentWSDLURL =
   "https://api.mindbodyonline.com/0_5_1/AppointmentService.asmx?wsdl";
 
-export interface IGetAppointmentsParamsInternal {
+interface IGetAppointmentsParamsInternal {
   LocationIDs: number;
   StaffIDs: core.IStaffIDsInternal;
   StartDateTime: Date;
@@ -15,7 +15,7 @@ export interface IGetAppointmentsParamsInternal {
   IgnorePrepFinishTimes: boolean;
 }
 
-export interface IGetStaffAppointmentsParamsExternal {
+interface IGetStaffAppointmentsParamsExternal {
   LocationIDs: { int: number };
   StaffIDs: core.IStaffIDsInternal;
   StartDate: string;
@@ -31,7 +31,7 @@ export interface IGetScheduleItemsParamsExternal {
   IgnorePrepFinishTimes?: boolean;
 }
 
-export interface IGetScheduleItemsParamsInternal {
+interface IGetScheduleItemsParamsInternal {
   LocationIDs?: core.CLocationIDs;
   StaffIDs?: core.CStaffIDs;
   StartDate?: Date;
@@ -40,7 +40,7 @@ export interface IGetScheduleItemsParamsInternal {
   toString: () => IGetScheduleItemsParamsExternal;
 }
 
-export class CGetScheduleItemsParams
+ class CGetScheduleItemsParams
   implements IGetScheduleItemsParamsInternal {
   constructor(
     public LocationIDs?: core.CLocationIDs,
@@ -67,7 +67,7 @@ export class CGetScheduleItemsParams
   }
 }
 
-export const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetScheduleItemsParams(
+ const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetScheduleItemsParams(
   // defaults.defaultLocationIDs,
   undefined,
   defaults.defaultStaffIDs,
