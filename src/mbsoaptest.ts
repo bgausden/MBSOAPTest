@@ -2,15 +2,34 @@
 import Promise from "bluebird";
 import prettyjson = require("prettyjson");
 import { Client, createClient, IOptions, ISoapMethod } from "soap";
-import { Category } from "typescript-logging";
+import {
+  Category,
+  CategoryConfiguration,
+  CategoryServiceFactory,
+  LogLevel
+} from "typescript-logging";
+import { print } from "util";
 import xmlformat = require("xml-formatter");
-import * as appointment from "./appointment";
-import * as core from "./core";
-import * as defaults from "./defaults";
+import {
+  appointmentWSDLURL,
+  defaultGetScheduleItemsRequest,
+  defaultGetStaffAppointmentsRequest,
+  IAppointment,
+  IGetStaffAppointmentsResult,
+  TMBAppointmentMethod
+} from "./appointment";
+import { TMBServices } from "./core";
+import { defaultSiteIDs, MBAPIKey } from "./defaults";
 import * as mbsoap from "./mbsoap";
-import * as site from "./site";
-import * as staff from "./staff";
-
+import { CReminder, IReminder } from "./reminder";
+import {
+  defaultGetResourcesRequest,
+  defaultGetSitesRequest,
+  siteWSDLURL,
+  TMBSiteMethod
+} from "./site";
+import { defaultGetStaffRequest, staffWSDLURL, TMBStaffMethod } from "./staff";
+// import * as staff from "./staff";
 import {
   catAppointment,
   catGetScheduleItems,
@@ -21,11 +40,18 @@ import {
   catUnknown
 } from "./typescript-logging-config";
 
-type TServiceMethod =
-  | site.TMBSiteMethod
-  | staff.TMBStaffMethod
-  | appointment.TMBAppointmentMethod;
+// This line kill all logging - why? TODO
+// CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
+type TServiceMethod = TMBSiteMethod | TMBStaffMethod | TMBAppointmentMethod;
+
+const localeDateStringOptions = {
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  month: "long",
+  weekday: "long"
+};
 const options: IOptions = {
   disableCache: false
 };
@@ -35,8 +61,8 @@ function createSoapClientAsync(wsdlURL: string): Promise<Client> {
     createClient(
       wsdlURL,
       (err: any, client: Client): void => {
-        client.addHttpHeader("API-key", defaults.MBAPIKey);
-        client.addHttpHeader("SiteId", defaults.defaultSiteIDs);
+        client.addHttpHeader("API-key", MBAPIKey);
+        client.addHttpHeader("SiteId", defaultSiteIDs);
         if (err) {
           reject(new Error(err));
         } else {
@@ -68,29 +94,65 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
     // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 }; */
 
-function handleResult(svc: core.TMBServices, svcMethod: site.TMBSiteMethod | appointment.TMBAppointmentMethod | staff.TMBStaffMethod, result:any):void {
+function handleResult(
+  svc: TMBServices,
+  svcMethod: TMBSiteMethod | TMBAppointmentMethod | TMBStaffMethod,
+  result: any
+): void {
   switch (svc as string) {
     case "Appointment":
-    switch (svcMethod as string) {
-      case "GetStaffAppointments":
-        console.log(JSON.stringify(result.GetStaffAppointmentsResult.Appointments));
-        catGetStaffAppointments.debug(() => `\n\nAppointments: \n\n${prettyjson.render(result.GetStaffAppointmentsResult.Appointments)}\n\n` );
-        break;
-    
-      default:
-      const errString: string = "Currently not able to process "+" "+ svc+":"+svcMethod;
-      catUnknown.debug(() => errString)
-      throw new Error(errString);
-        break;
-    }
+      switch (svcMethod as string) {
+        case "GetStaffAppointments":
+          catGetStaffAppointments.debug(
+            () =>
+              `\n\nAppointments: \n\n${prettyjson.render(
+                result.GetStaffAppointmentsResult.Appointments
+              )}\n\n`
+          );
+          const reminderCache = new Map<string, CReminder>();
+          result = result as IGetStaffAppointmentsResult;
+          result.GetStaffAppointmentsResult.Appointments.Appointment.forEach(
+            (element: IAppointment) => {
+              const key = element.ID;
+              const reminder = new CReminder(
+                element.ID,
+                element.Client.FirstName,
+                element.Status,
+                element.SessionType.Name,
+                element.Staff.FirstName,
+                element.StartDateTime
+              );
+              reminderCache.set(key, reminder);
+              catGetStaffAppointments.debug(
+                () => `\n\n${prettyjson.render(reminder)}`
+                /*  `${element.ID}\t${element.Client.FirstName}\t${
+                    element.Status
+                  }\t${element.SessionType.Name}\t${
+                    element.Staff.FirstName
+                  }\t${element.StartDateTime.toLocaleDateString(
+                    "AU",
+                    localeDateStringOptions
+                  )}` */
+              );
+            }
+          );
+          break;
+
+        default:
+          const errString: string =
+            "Currently not able to process " + " " + svc + ":" + svcMethod;
+          catUnknown.debug(() => errString);
+          throw new Error(errString);
+          break;
+      }
       break;
-  
+
     default:
       break;
   }
 }
 
-const service: core.TMBServices = "Appointment";
+const service: TMBServices = "Appointment";
 const serviceMethod: TServiceMethod = "GetStaffAppointments";
 let parentCategory: Category;
 let loggingCategory: Category;
@@ -100,16 +162,16 @@ let clientPromise: Promise<Client>;
 
 switch (service) {
   case "Site" as string: {
-    clientPromise = createSoapClientAsync(site.siteWSDLURL);
+    clientPromise = createSoapClientAsync(siteWSDLURL);
     parentCategory = catSite;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
       case "GetResources" as string: {
-        request = site.defaultGetResourcesRequest;
+        request = defaultGetResourcesRequest;
         break;
       }
       case "GetSites" as string: {
-        request = site.defaultGetSitesRequest;
+        request = defaultGetSitesRequest;
         break;
       }
       default:
@@ -125,16 +187,16 @@ switch (service) {
   } // end case Site
   case "Appointment" as string: {
     // case SOAP Service == Appointment
-    clientPromise = createSoapClientAsync(appointment.appointmentWSDLURL);
+    clientPromise = createSoapClientAsync(appointmentWSDLURL);
     parentCategory = catAppointment;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
       case "GetStaffAppointments" as string: {
-        request = appointment.defaultGetStaffAppointmentsRequest;
+        request = defaultGetStaffAppointmentsRequest;
         break;
       }
       case "GetScheduleItems" as string: {
-        request = appointment.defaultGetScheduleItemsRequest;
+        request = defaultGetScheduleItemsRequest;
         break;
       }
       default:
@@ -150,12 +212,12 @@ switch (service) {
   } // end case Appointment
   case "Staff" as string: {
     // case SOAP Service == Staff
-    clientPromise = createSoapClientAsync(staff.staffWSDLURL);
+    clientPromise = createSoapClientAsync(staffWSDLURL);
     parentCategory = catStaff;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
       case "GetStaff" as string: {
-        request = staff.defaultGetStaffRequest;
+        request = defaultGetStaffRequest;
         break;
       }
       default:
@@ -179,8 +241,8 @@ clientPromise.then(client => {
     // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
     if (err) {
       loggingCategory.debug(
-     // @ts-ignore TS2345:
-() => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+        // @ts-ignore TS2345:
+        () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
       );
       throw new Error(JSON.stringify(err));
     } else {
