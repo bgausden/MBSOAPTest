@@ -25,6 +25,7 @@ export const appointmentWSDLURL =
   "https://api.mindbodyonline.com/0_5_1/AppointmentService.asmx?wsdl";
 
 export interface IAppointment {
+  [key:string]: any
   ID: string;
   Status: string;
   StartDateTime: Date;
@@ -41,7 +42,11 @@ export interface IAppointment {
 }
 
 export interface IGetStaffAppointmentsResult {
-  Appointment: IAppointment[];
+  GetStaffAppointmentsResult: {
+    Appointments: {
+      Appointment: IAppointment[];
+    };
+  };
 }
 
 interface IGetAppointmentsParamsInternal {
