@@ -19,7 +19,7 @@ import {
   IGetStaffAppointmentsResult,
   TMBAppointmentMethod
 } from "./appointment";
-import { Appointment, Site, TServices } from "./core";
+import { Appointment, Site } from "./constants/core";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
 import * as mbsoap from "./mbsoap";
 import { CReminder, IReminder } from "./reminder";
@@ -32,6 +32,7 @@ import {
   TSiteMethod
 } from "./site";
 import { defaultGetStaffRequest, staffWSDLURL, TMBStaffMethod } from "./staff";
+import { TServices } from "./types/core";
 // import * as staff from "./staff";
 import {
   catAppointment,
@@ -47,17 +48,6 @@ import {
 // CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
 type TServiceMethod = TSiteMethod | TMBStaffMethod | TMBAppointmentMethod;
-
-const localeDateStringOptions = {
-  day: "numeric",
-  hour: "numeric",
-  minute: "numeric",
-  month: "long",
-  weekday: "long"
-};
-const options: IOptions = {
-  disableCache: false
-};
 
 function createSoapClientAsync(wsdlURL: string): Promise<Client> {
   return new Promise((resolve: any, reject: any) => {

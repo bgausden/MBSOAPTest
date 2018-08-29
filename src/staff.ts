@@ -1,7 +1,9 @@
 // tslint:disable max-classes-per-file callable-types interface-over-type-literal
 
-import * as core from "./core";
+import { CStaffCredentials, CStaffIDs } from "./classes/core";
 import * as defaults from "./defaults";
+import { defaultStaffIDs } from "./defaults";
+import { IStaffCredentialsInternal, IStaffIDsInternal } from "./interfaces/core";
 import * as mbsoap from "./mbsoap";
 
 export type TMBStaffMethod =
@@ -26,7 +28,7 @@ export interface IStaff {
 }
 
 export interface IGetStaffParamsExternal {
-  StaffCredentials?: core.IStaffCredentialsInternal;
+  StaffCredentials?: IStaffCredentialsInternal;
   StaffIDs?: { long: number };
   Filters?: { string: string };
   SessionTypeID?: number;
@@ -36,8 +38,8 @@ export interface IGetStaffParamsExternal {
 }
 
 export interface IGetStaffParamsInternal {
-  StaffIDs?: core.IStaffIDsInternal;
-  StaffCredentials?: core.IStaffCredentialsInternal;
+  StaffIDs?: CStaffIDs;
+  StaffCredentials?: IStaffCredentialsInternal;
   Filters?: string;
   SessionTypeID?: number;
   StartDateTime?: string;
@@ -61,8 +63,8 @@ export interface IAddOrUpdateStaffParamsInternal {
 
 export class CGetStaffParams implements IGetStaffParamsInternal {
   constructor(
-    public StaffCredentials?: core.IStaffCredentialsInternal,
-    public StaffIDs?: core.IStaffIDsInternal,
+    public StaffCredentials?: IStaffCredentialsInternal,
+    public StaffIDs?: CStaffIDs,
     public Filters?: string,
     public SessionTypeID?: number,
     public StartDateTime?: string,
@@ -76,7 +78,7 @@ export class CGetStaffParams implements IGetStaffParamsInternal {
     let paramsExternal = {};
 
     if (this.StaffCredentials !== undefined) {
-      paramsExternal = new core.CStaffCredentials(
+      paramsExternal = new CStaffCredentials(
         this.StaffCredentials.username,
         this.StaffCredentials.password,
         this.StaffCredentials.siteids
@@ -85,7 +87,7 @@ export class CGetStaffParams implements IGetStaffParamsInternal {
     if (this.StaffIDs !== undefined) {
       Object.assign(
         paramsExternal,
-        new core.CStaffIDs(this.StaffIDs.StaffIDs).toString()
+        new CStaffIDs(this.StaffIDs.StaffIDs).toString()
       );
     }
     if (this.Filters !== undefined) {
@@ -119,7 +121,7 @@ export const staffWSDLURL =
 // export const defaultGetStaffParams: IGetStaffParamsExternal = {};
 export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParams(
   undefined,
-  defaults.defaultStaffIDs
+  defaultStaffIDs
 ).toString();
 
 export const defaultGetStaffRequest: mbsoap.TSoapRequest = {

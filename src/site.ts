@@ -1,8 +1,10 @@
 // tslint:disable max-classes-per-file callable-types interface-over-type-literal
 
-import * as core from "./core";
 import * as defaults from "./defaults";
+import { CLocationIDs } from "./interfaces/core";
+import { ILocationIDsExternal } from "./interfaces/core";
 import * as mbsoap from "./mbsoap";
+import { TLocationIDsInternal } from "./types/core";
 
 export const GetSites = "GetSites";
 export type GetSites = typeof GetSites;
@@ -82,14 +84,14 @@ export interface ISessionType {
 }
 
 export interface IGetResourcesParamsExternal {
-  LocationIDs: core.TLocationIDsExternal;
+  LocationIDs: {int: TLocationIDsInternal};
   SessionTypeIDs: number;
   StartDateTime: string;
   EndDateTime: string;
 }
 
 export interface IGetResourcesParamsInternal {
-  LocationIDs: core.CLocationIDs;
+  LocationIDs: CLocationIDs;
   SessionTypeIDs: number;
   StartDateTime: Date;
   EndDateTime: Date;
@@ -129,7 +131,7 @@ export interface IGetResourcesResult {
 
 export class CGetResourcesParams implements IGetResourcesParamsInternal {
   constructor(
-    public LocationIDs: core.CLocationIDs,
+    public LocationIDs: CLocationIDs,
     public SessionTypeIDs: number,
     public StartDateTime: Date,
     public EndDateTime: Date

@@ -1,11 +1,6 @@
 // Imports
+import { CStaffIDs } from "./classes/core";
 import { IClient } from "./client";
-import {
-    CLocationIDs,
-    CStaffIDs,
-    IStaffIDsInternal,
-    TStaffIDsExternal
-} from "./core";
 import {
     defaultPageDetail,
     defaultPagingParams,
@@ -16,6 +11,8 @@ import {
     now,
     tomorrow
 } from "./defaults";
+import { IStaffIDsExternal, IStaffIDsInternal } from "./interfaces/core";
+import { CLocationIDs } from "./interfaces/core";
 import { TSoapRequest } from "./mbsoap";
 import { IProgram, IResources, ISessionType } from "./site";
 import { IStaff } from "./staff";
@@ -73,7 +70,7 @@ interface IGetStaffAppointmentsParamsExternal {
 
 export interface IGetScheduleItemsParamsExternal {
     LocationIDs?: { int: number };
-    StaffIDs?: TStaffIDsExternal;
+    StaffIDs?: IStaffIDsExternal;
     StartDate?: string;
     EndDate?: string;
     IgnorePrepFinishTimes?: boolean;
@@ -117,7 +114,7 @@ class CGetScheduleItemsParams implements IGetScheduleItemsParamsInternal {
         }
         return params;
 
-        /* TODO there should be a way to iterate through the props and then do the assignment.    
+        /* TODO there should be a way to iterate through the props and then do the assignment.
        for (const p of this) {
           if (this[p] !== undefined) {
             params = Object.assign(params, this[p]);
