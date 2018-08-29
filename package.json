@@ -20,6 +20,7 @@
         "ts-node": "^6.2.0",
         "tslint": "^5.11.0",
         "tslint-config-prettier": "^1.14.0",
+        "tslint-react": "^3.6.0",
         "typescript": "^3.0.1",
         "xml-formatter": "^1.0.1",
         "xml-parser-xo": "^2.1.3"
