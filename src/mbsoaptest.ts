@@ -109,6 +109,9 @@ function handleResult(
                 result.GetStaffAppointmentsResult.Appointments
               )}\n\n`
           );
+          catGetStaffAppointments.debug(
+            () => "Loading Appointments into Cache"
+          );
           const reminderCache = new Map<string, CReminder>();
           result = result as IGetStaffAppointmentsResult;
           result.GetStaffAppointmentsResult.Appointments.Appointment.forEach(
@@ -125,17 +128,22 @@ function handleResult(
               reminderCache.set(key, reminder);
               catGetStaffAppointments.debug(
                 () => `\n\n${prettyjson.render(reminder)}`
-                /*  `${element.ID}\t${element.Client.FirstName}\t${
-                    element.Status
-                  }\t${element.SessionType.Name}\t${
-                    element.Staff.FirstName
-                  }\t${element.StartDateTime.toLocaleDateString(
-                    "AU",
-                    localeDateStringOptions
-                  )}` */
               );
             }
           );
+          reminderCache.forEach(element => {
+            if (element.Status !== "Confirmed") {
+              catGetStaffAppointments.debug(
+                () =>
+                  `\n\nHi ${
+                    element.ClientFirstName
+                  } this is a reminder for your appointment tomorrow at ${element.StartDateTime.toLocaleString(
+                    "en-US",
+                    { hour: "numeric", minute: "numeric" }
+                  )} with ${element.StaffFirstName}.\n\n`
+              );
+            }
+          });
           break;
 
         default:
