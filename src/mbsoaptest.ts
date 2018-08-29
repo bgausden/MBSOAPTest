@@ -14,19 +14,22 @@ import {
   appointmentWSDLURL,
   defaultGetScheduleItemsRequest,
   defaultGetStaffAppointmentsRequest,
+  GetStaffAppointments,
   IAppointment,
   IGetStaffAppointmentsResult,
   TMBAppointmentMethod
 } from "./appointment";
-import { TMBServices } from "./core";
+import { Appointment, Site, TServices } from "./core";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
 import * as mbsoap from "./mbsoap";
 import { CReminder, IReminder } from "./reminder";
 import {
   defaultGetResourcesRequest,
   defaultGetSitesRequest,
+  GetResources,
+  GetSites,
   siteWSDLURL,
-  TMBSiteMethod
+  TSiteMethod
 } from "./site";
 import { defaultGetStaffRequest, staffWSDLURL, TMBStaffMethod } from "./staff";
 // import * as staff from "./staff";
@@ -43,7 +46,7 @@ import {
 // This line kill all logging - why? TODO
 // CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
-type TServiceMethod = TMBSiteMethod | TMBStaffMethod | TMBAppointmentMethod;
+type TServiceMethod = TSiteMethod | TMBStaffMethod | TMBAppointmentMethod;
 
 const localeDateStringOptions = {
   day: "numeric",
@@ -95,12 +98,12 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
 }; */
 
 function handleResult(
-  svc: TMBServices,
-  svcMethod: TMBSiteMethod | TMBAppointmentMethod | TMBStaffMethod,
+  svc: TServices,
+  svcMethod: TSiteMethod | TMBAppointmentMethod | TMBStaffMethod,
   result: any
 ): void {
-  switch (svc as string) {
-    case "Appointment":
+  switch (svc) {
+    case Appointment:
       switch (svcMethod as string) {
         case "GetStaffAppointments":
           catGetStaffAppointments.debug(
@@ -160,8 +163,8 @@ function handleResult(
   }
 }
 
-const service: TMBServices = "Appointment";
-const serviceMethod: TServiceMethod = "GetStaffAppointments";
+const service: TServices = "Appointment";
+const serviceMethod: TServiceMethod = GetStaffAppointments;
 let parentCategory: Category;
 let loggingCategory: Category;
 let request: mbsoap.TSoapRequest;
@@ -169,16 +172,16 @@ let request: mbsoap.TSoapRequest;
 let clientPromise: Promise<Client>;
 
 switch (service) {
-  case "Site" as string: {
+  case Site as string: {
     clientPromise = createSoapClientAsync(siteWSDLURL);
     parentCategory = catSite;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
-      case "GetResources" as string: {
+      case GetResources as string: {
         request = defaultGetResourcesRequest;
         break;
       }
-      case "GetSites" as string: {
+      case GetSites as string: {
         request = defaultGetSitesRequest;
         break;
       }

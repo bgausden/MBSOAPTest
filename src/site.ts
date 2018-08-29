@@ -4,17 +4,47 @@ import * as core from "./core";
 import * as defaults from "./defaults";
 import * as mbsoap from "./mbsoap";
 
-export type TMBSiteMethod =
-  | "GetSites"
-  | "GetLocations"
-  | "GetActivationCode"
-  | "GetPrograms"
-  | "GetSessionTypes"
-  | "GetResources"
-  | "GetRelationships"
-  | "GetGenders"
-  | "GetProspectStages"
-  | "GetMobileProviders";
+export const GetSites = "GetSites";
+export type GetSites = typeof GetSites;
+
+export const GetLocations = "GetLocations";
+export type GetLocations = typeof GetLocations;
+
+export const GetActivationCode = "GetActivationCode";
+export type GetActivationCode = typeof GetActivationCode;
+
+export const GetPrograms = "GetPrograms";
+export type GetPrograms = typeof GetPrograms;
+
+export const GetSessionTypes = "GetSessionTypes";
+export type GetSessionTypes = typeof GetSessionTypes;
+
+export const GetResources = "GetResources";
+export type GetResources = typeof GetResources;
+
+export const GetRelationships = "GetRelationships";
+export type GetRelationships = typeof GetRelationships;
+
+export const GetGenders = "GetGenders";
+export type GetGenders = typeof GetGenders;
+
+export const GetProspectStages = "GetProspectStages";
+export type GetProspectStages = typeof GetProspectStages;
+
+export const GetMobileProviders = "GetMobileProviders";
+export type GetMobileProviders = typeof GetMobileProviders;
+
+export type TSiteMethod =
+  | GetSites
+  | GetLocations
+  | GetActivationCode
+  | GetPrograms
+  | GetSessionTypes
+  | GetResources
+  | GetRelationships
+  | GetGenders
+  | GetProspectStages
+  | GetMobileProviders;
 
 export interface IResource {
   ID: number;
