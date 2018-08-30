@@ -1,28 +1,25 @@
 // tslint:disable max-classes-per-file callable-types interface-over-type-literal
 import Promise from "bluebird";
 import prettyjson = require("prettyjson");
-import { Client, createClient, IOptions, ISoapMethod } from "soap";
+import { Client, createClient, ISoapMethod } from "soap";
 import {
-  Category,
-  CategoryConfiguration,
-  CategoryServiceFactory,
-  LogLevel
-} from "typescript-logging";
-import { print } from "util";
+  Category} from "typescript-logging";
 import xmlformat = require("xml-formatter");
 import {
   appointmentWSDLURL,
+  Confirmed,
   defaultGetScheduleItemsRequest,
   defaultGetStaffAppointmentsRequest,
+  GetScheduleItems,
   GetStaffAppointments,
   IAppointment,
   IGetStaffAppointmentsResult,
   TMBAppointmentMethod
 } from "./appointment";
-import { Appointment, Site } from "./constants/core";
+import { Appointment, Site, Staff } from "./constants/core";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
 import * as mbsoap from "./mbsoap";
-import { CReminder, IReminder } from "./reminder";
+import { CReminder } from "./reminder";
 import {
   defaultGetResourcesRequest,
   defaultGetSitesRequest,
@@ -31,23 +28,17 @@ import {
   siteWSDLURL,
   TSiteMethod
 } from "./site";
-import { defaultGetStaffRequest, staffWSDLURL, TMBStaffMethod } from "./staff";
+import { defaultGetStaffRequest, GetStaff, staffWSDLURL, TMBStaffMethod } from "./staff";
 import { TServices } from "./types/core";
+import { TServiceMethod } from "./types/core";
 // import * as staff from "./staff";
 import {
   catAppointment,
-  catGetScheduleItems,
-  catGetStaff,
   catGetStaffAppointments,
   catSite,
   catStaff,
   catUnknown
 } from "./typescript-logging-config";
-
-// This line kill all logging - why? TODO
-// CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
-
-type TServiceMethod = TSiteMethod | TMBStaffMethod | TMBAppointmentMethod;
 
 function createSoapClientAsync(wsdlURL: string): Promise<Client> {
   return new Promise((resolve: any, reject: any) => {
@@ -125,7 +116,7 @@ function handleResult(
             }
           );
           reminderCache.forEach(element => {
-            if (element.Status !== "Confirmed") {
+            if (element.Status !== Confirmed) {
               catGetStaffAppointments.debug(
                 () =>
                   `\n\nHi ${
@@ -186,17 +177,17 @@ switch (service) {
     } // end switch serviceMethod
     break;
   } // end case Site
-  case "Appointment" as string: {
+  case Appointment as string: {
     // case SOAP Service == Appointment
     clientPromise = createSoapClientAsync(appointmentWSDLURL);
     parentCategory = catAppointment;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
-      case "GetStaffAppointments" as string: {
+      case GetStaffAppointments as string: {
         request = defaultGetStaffAppointmentsRequest;
         break;
       }
-      case "GetScheduleItems" as string: {
+      case GetScheduleItems as string: {
         request = defaultGetScheduleItemsRequest;
         break;
       }
@@ -211,13 +202,12 @@ switch (service) {
     } // end switch(serviceMethod)
     break;
   } // end case Appointment
-  case "Staff" as string: {
-    // case SOAP Service == Staff
+  case Staff as string: {     // case SOAP Service == Staff
     clientPromise = createSoapClientAsync(staffWSDLURL);
     parentCategory = catStaff;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
-      case "GetStaff" as string: {
+      case GetStaff as string: {
         request = defaultGetStaffRequest;
         break;
       }
@@ -237,7 +227,7 @@ switch (service) {
 // @ts-ignore TS2454
 clientPromise.then(client => {
   const soapMethod = client[serviceMethod] as ISoapMethod;
-  soapMethod(request, (err, result, raw, soapHeader) => {
+  soapMethod(request, (err, result) => {
     // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
     // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
     if (err) {

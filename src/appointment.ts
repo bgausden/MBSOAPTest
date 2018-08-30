@@ -17,6 +17,8 @@ import { TSoapRequest } from "./mbsoap";
 import { IProgram, IResources, ISessionType } from "./site";
 import { IStaff } from "./staff";
 
+export const Confirmed = "Confirmed";
+
 export const GetStaffAppointments = "GetStaffAppointments";
 export type GetStaffAppointments = typeof GetStaffAppointments;
 

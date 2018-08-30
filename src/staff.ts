@@ -6,6 +6,9 @@ import { defaultStaffIDs } from "./defaults";
 import { IStaffCredentialsInternal, IStaffIDsInternal } from "./interfaces/core";
 import * as mbsoap from "./mbsoap";
 
+export const GetStaff = "Staff";
+export type TGetStaff = typeof GetStaff;
+
 export type TMBStaffMethod =
   | "GetStaff"
   | "GetStaffPermissions"
