@@ -127,7 +127,7 @@ export const defaultGetStaffParams: IGetStaffParamsExternal = new CGetStaffParam
   defaultStaffIDs
 ).toString();
 
-export const defaultGetStaffRequest: mbsoap.TSoapRequest = {
+export const defaultGetStaffRequest: mbsoap.ISoapRequest = {
   Request: Object.assign(
     defaultGetStaffParams,
     defaults.defaultLocationIDs,

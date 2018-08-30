@@ -4,19 +4,19 @@ import { IGetScheduleItemsParamsExternal } from "./appointment";
 
 import { IGetStaffParamsExternal } from "./staff";
 
-// tslint:disable max-classes-per-file callable-types interface-over-type-literal
+export type MethodParamsExternal =
+| IGetResourcesParamsExternal
+| IGetSitesParamsExternal
+| IGetScheduleItemsParamsExternal
+| IGetStaffParamsExternal;
 
-export type TSoapRequest = {
-  Request:
-    | IGetResourcesParamsExternal
-    | IGetSitesParamsExternal
-    | IGetScheduleItemsParamsExternal
-    | IGetStaffParamsExternal;
-};
+export interface ISoapRequest {
+  Request: MethodParamsExternal
+}
 
 export function wrapRequest(
-  params: IGetResourcesParamsExternal | IGetScheduleItemsParamsExternal
-): TSoapRequest {
+  params: MethodParamsExternal
+): ISoapRequest {
   // return an Object with one property "Request" whose value is the param Object
   return { Request: params };
 }

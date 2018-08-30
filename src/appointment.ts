@@ -13,7 +13,7 @@ import {
 } from "./defaults";
 import { IStaffIDsExternal, IStaffIDsInternal } from "./interfaces/core";
 import { CLocationIDs } from "./interfaces/core";
-import { TSoapRequest } from "./mbsoap";
+import { ISoapRequest } from "./mbsoap";
 import { IProgram, IResources, ISessionType } from "./site";
 import { IStaff } from "./staff";
 
@@ -140,7 +140,7 @@ const defaultGetScheduleItemsParams: IGetScheduleItemsParamsExternal = new CGetS
 // required getScheduleItems args appear to be SourceCredentials + UserCredentials + PagingDetails + DetailLevel
 // + StaffIDs + LocationID + (optional) StartDate + (optional) EndDate
 // note this is *not* consistent with the MB documentation but empirically, this is what works
-export const defaultGetScheduleItemsRequest: TSoapRequest = {
+export const defaultGetScheduleItemsRequest: ISoapRequest = {
     Request: Object.assign(
         defaultSourceCredentials.toString(),
         defaultUserCredentials.toString(),
@@ -159,7 +159,7 @@ export const defaultGetScheduleItemsRequest: TSoapRequest = {
     defaultPageDetail
 ); */
 
-export const defaultGetStaffAppointmentsRequest: TSoapRequest = {
+export const defaultGetStaffAppointmentsRequest: ISoapRequest = {
     Request: Object.assign(
         defaultStaffCredentials.toString(),
         defaultSourceCredentials.toString(),

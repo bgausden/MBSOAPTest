@@ -175,7 +175,7 @@ export const defaultGetResourcesParams: IGetResourcesParamsExternal = new CGetRe
   defaults.midnight
 ).toString();
 
-export const defaultGetResourcesRequest: mbsoap.TSoapRequest = {
+export const defaultGetResourcesRequest: mbsoap.ISoapRequest = {
   Request: Object.assign(
     defaultGetResourcesParams,
     defaults.defaultPagingParams
@@ -187,7 +187,7 @@ export const defaultGetSitesParamsExternal: IGetSitesParamsExternal = new CGetSi
   defaults.defaultRelatedSiteID
 ).toString();
 
-export const defaultGetSitesRequest: mbsoap.TSoapRequest = {
+export const defaultGetSitesRequest: mbsoap.ISoapRequest = {
   Request: Object.assign(
     defaultGetSitesParamsExternal,
     defaults.defaultPagingParams, // mandatory

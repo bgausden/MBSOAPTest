@@ -148,7 +148,7 @@ const service: TServices = Appointment;
 const serviceMethod: TServiceMethod = GetStaffAppointments;
 let parentCategory: Category;
 let loggingCategory: Category;
-let request: mbsoap.TSoapRequest;
+let request: mbsoap.ISoapRequest;
 // let MBClientPromise: () => Promise<Client>;
 let clientPromise: Promise<Client>;
 
