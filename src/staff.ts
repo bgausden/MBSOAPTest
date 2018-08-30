@@ -1,4 +1,6 @@
-// tslint:disable max-classes-per-file callable-types interface-over-type-literal
+// tslint:disable max-classes-per-file callable-types
+
+// interface-over-type-literal
 
 import { CStaffCredentials, CStaffIDs } from "./classes/core";
 import * as defaults from "./defaults";
@@ -7,14 +9,26 @@ import { IStaffCredentialsInternal, IStaffIDsInternal } from "./interfaces/core"
 import * as mbsoap from "./mbsoap";
 
 export const GetStaff = "Staff";
-export type TGetStaff = typeof GetStaff;
+ type TGetStaff = typeof GetStaff;
 
-export type TMBStaffMethod =
-  | "GetStaff"
-  | "GetStaffPermissions"
-  | "AddOrUpdateStaff"
-  | "GetStaffImgURL"
-  | "ValidateStaffLogin";
+export const GetStaffPermissions = "GetStaffPermissions"
+type TGetStaffPermissions = typeof GetStaffPermissions
+
+export const AddOrUpdateStaff = "AddOrUpdateStaff"
+type TAddOrUpdateStaff = typeof AddOrUpdateStaff
+
+export const GetStaffImgURL = "GetStaffImgURL"
+type TGetStaffImgURL = typeof GetStaffImgURL
+
+export const ValidateStaffLogin = "ValidateStaffLogin"
+type TValidateStaffLogin = typeof ValidateStaffLogin
+
+export type TStaffMethod =
+  | TGetStaff
+  | TGetStaffPermissions
+  | TAddOrUpdateStaff
+  | TGetStaffImgURL
+  | TValidateStaffLogin;
 
 export interface IStaff {
   SortOrder: number;
@@ -40,7 +54,7 @@ export interface IGetStaffParamsExternal {
   Fields?: string;
 }
 
-export interface IGetStaffParamsInternal {
+ interface IGetStaffParamsInternal {
   StaffIDs?: CStaffIDs;
   StaffCredentials?: IStaffCredentialsInternal;
   Filters?: string;
@@ -57,7 +71,7 @@ export interface IAddOrUpdateStaffParamsExternal {
   Staff: number;
 }
 
-export interface IAddOrUpdateStaffParamsInternal {
+ interface IAddOrUpdateStaffParamsInternal {
   Test?: boolean;
   UpdateAction: string;
   Staff: number;

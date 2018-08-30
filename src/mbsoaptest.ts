@@ -1,9 +1,7 @@
-// tslint:disable max-classes-per-file callable-types interface-over-type-literal
 import Promise from "bluebird";
 import prettyjson = require("prettyjson");
 import { Client, createClient, ISoapMethod } from "soap";
-import {
-  Category} from "typescript-logging";
+import { Category } from "typescript-logging";
 import xmlformat = require("xml-formatter");
 import {
   appointmentWSDLURL,
@@ -14,7 +12,7 @@ import {
   GetStaffAppointments,
   IAppointment,
   IGetStaffAppointmentsResult,
-  TMBAppointmentMethod
+  TAppointmentMethod
 } from "./appointment";
 import { Appointment, Site, Staff } from "./constants/core";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
@@ -28,7 +26,12 @@ import {
   siteWSDLURL,
   TSiteMethod
 } from "./site";
-import { defaultGetStaffRequest, GetStaff, staffWSDLURL, TMBStaffMethod } from "./staff";
+import {
+  defaultGetStaffRequest,
+  GetStaff,
+  staffWSDLURL,
+  TStaffMethod
+} from "./staff";
 import { TServices } from "./types/core";
 import { TServiceMethod } from "./types/core";
 // import * as staff from "./staff";
@@ -39,6 +42,9 @@ import {
   catStaff,
   catUnknown
 } from "./typescript-logging-config";
+
+// This line kill all logging - why? TODO
+// CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
 function createSoapClientAsync(wsdlURL: string): Promise<Client> {
   return new Promise((resolve: any, reject: any) => {
@@ -80,7 +86,7 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
 
 function handleResult(
   svc: TServices,
-  svcMethod: TSiteMethod | TMBAppointmentMethod | TMBStaffMethod,
+  svcMethod: TSiteMethod | TAppointmentMethod | TStaffMethod,
   result: any
 ): void {
   switch (svc) {
@@ -115,16 +121,10 @@ function handleResult(
               );
             }
           );
-          reminderCache.forEach(element => {
-            if (element.Status !== Confirmed) {
-              catGetStaffAppointments.debug(
-                () =>
-                  `\n\nHi ${
-                    element.ClientFirstName
-                  } this is a reminder for your appointment tomorrow at ${element.StartDateTime.toLocaleString(
-                    "en-US",
-                    { hour: "numeric", minute: "numeric" }
-                  )} with ${element.StaffFirstName}.\n\n`
+          reminderCache.forEach(reminder => {
+            if (reminder.Status !== Confirmed) {
+              catGetStaffAppointments.debug(() =>
+                reminder.createReminderString()
               );
             }
           });
@@ -169,10 +169,10 @@ switch (service) {
       default:
         throw new Error(
           "Unknown MindBody" +
-          service +
-          'service method " ' +
-          serviceMethod +
-          '"specified.'
+            service +
+            'service method " ' +
+            serviceMethod +
+            '"specified.'
         );
     } // end switch serviceMethod
     break;
@@ -194,15 +194,16 @@ switch (service) {
       default:
         throw new Error(
           "Unknown MindBody" +
-          service +
-          'service method " ' +
-          serviceMethod +
-          '"specified.'
+            service +
+            'service method " ' +
+            serviceMethod +
+            '"specified.'
         );
     } // end switch(serviceMethod)
     break;
   } // end case Appointment
-  case Staff as string: {     // case SOAP Service == Staff
+  case Staff as string: {
+    // case SOAP Service == Staff
     clientPromise = createSoapClientAsync(staffWSDLURL);
     parentCategory = catStaff;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
@@ -214,10 +215,10 @@ switch (service) {
       default:
         throw new Error(
           "Unknown MindBody" +
-          service +
-          'service method " ' +
-          serviceMethod +
-          '"specified.'
+            service +
+            'service method " ' +
+            serviceMethod +
+            '"specified.'
         );
     } // end switch(serviceMethod)
     break;

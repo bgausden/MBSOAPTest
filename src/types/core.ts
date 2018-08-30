@@ -1,4 +1,4 @@
-import { TMBAppointmentMethod } from "../appointment";
+import { TAppointmentMethod } from "../appointment";
 import {
   barePageDetail,
   basicPageDetail,
@@ -8,7 +8,7 @@ import {
   TStaff
 } from "../constants/core";
 import { TSiteMethod } from "../site";
-import { TMBStaffMethod } from "../staff";
+import { TStaffMethod } from "../staff";
 
 type fullPageDetail = typeof fullPageDetail;
 type basicPageDetail = typeof basicPageDetail;
@@ -18,8 +18,8 @@ export type TPageDetail = fullPageDetail | basicPageDetail | barePageDetail;
 export type TServices = TSite | TAppointment | TStaff;
 export type TServiceMethod =
   | TSiteMethod
-  | TMBStaffMethod
-  | TMBAppointmentMethod;
+  | TStaffMethod
+  | TAppointmentMethod;
 
 export type TStaffIDsInternal = number;
 // tslint:disable interface-over-type-literal

@@ -25,7 +25,7 @@ export type GetStaffAppointments = typeof GetStaffAppointments;
 export const GetScheduleItems = "GetScheduleItems";
 export type GetScheduleItems = typeof GetScheduleItems;
 
-export type TMBAppointmentMethod = GetStaffAppointments | GetScheduleItems;
+export type TAppointmentMethod = GetStaffAppointments | GetScheduleItems;
 export const appointmentWSDLURL =
     "https://api.mindbodyonline.com/0_5_1/AppointmentService.asmx?wsdl";
 

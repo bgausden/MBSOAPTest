@@ -1,8 +1,10 @@
-import { IGetResourcesParamsExternal, IGetSitesParamsExternal } from "./site";
+import { IGetResourcesParamsExternal, IGetSitesParamsExternal, TSiteMethod } from "./site";
 
-import { IGetScheduleItemsParamsExternal } from "./appointment";
+import { IGetScheduleItemsParamsExternal, TAppointmentMethod } from "./appointment";
 
-import { IGetStaffParamsExternal } from "./staff";
+import { IGetStaffParamsExternal, TStaffMethod } from "./staff";
+
+export type TServiceMethod = TSiteMethod | TStaffMethod | TAppointmentMethod;
 
 export type MethodParamsExternal =
 | IGetResourcesParamsExternal

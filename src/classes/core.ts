@@ -3,22 +3,11 @@ import {
   ISourceCredentialsInternal,
   IStaffCredentialsExternal,
   IStaffCredentialsInternal,
-  IStaffIDsExternal,
-  IStaffIDsInternal,
   IUserCredentialsExternal,
   IUserCredentialsInternal
 } from "../interfaces/core";
 import { TStaffIDsExternal, TStaffIDsInternal } from "../types/core";
 
-// tslint:disable max-classes-per-file
-
-class CSessionTypeIDs {
-  constructor(typeIDs: number[]) {
-    return {
-      SessionTypeIDs: typeIDs
-    };
-  }
-}
 export class CUserCredentials implements IUserCredentialsInternal {
   constructor(
     public username: string,
