@@ -1,3 +1,5 @@
+import S from "string";
+
 export interface IReminder {
   [key: string]: any;
   ID: string;
@@ -17,8 +19,8 @@ export class CReminder implements IReminder {
     public StaffFirstName: string,
     public StartDateTime: Date
   ) {}
-  public createReminderString(): string {
-    return `\n\nHi ${
+  public toReminderString(): string {
+    return `Hi ${
       this.ClientFirstName
     } this is a reminder for your appointment tomorrow (${this.StartDateTime.toLocaleDateString(
       "en-US",
@@ -26,6 +28,15 @@ export class CReminder implements IReminder {
     )}) at ${this.StartDateTime.toLocaleString("en-US", {
       hour: "numeric",
       minute: "numeric"
-    })} with ${this.StaffFirstName}.\n\n`;
+    })} with ${this.StaffFirstName}.`;
+  }
+  /**
+   * toWhatsAppURI
+   */
+  public toWhatsAppURI(): string {
+    const reminderText = S(this.toReminderString()).escapeHTML().s;
+    return S(reminderText).wrapHTML("a", {
+      href: `whatsapp://send?text=${reminderText}`
+    }).s;
   }
 }

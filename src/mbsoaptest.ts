@@ -124,7 +124,7 @@ function handleResult(
           reminderCache.forEach(reminder => {
             if (reminder.Status !== Confirmed) {
               catGetStaffAppointments.debug(() =>
-                reminder.createReminderString()
+                reminder.toWhatsAppURI()
               );
             }
           });
