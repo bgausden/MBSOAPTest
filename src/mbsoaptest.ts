@@ -95,7 +95,7 @@ function handleResult(
   switch (svc) {
     case Appointment:
       switch (svcMethod as string) {
-        case "GetStaffAppointments":
+        case GetStaffAppointments:
           catGetStaffAppointments.debug(
             () =>
               `\n\nAppointments: \n\n${prettyjson.render(
@@ -153,7 +153,7 @@ function handleResult(
   }
 }
 
-const service: TServices = "Appointment";
+const service: TServices = Appointment;
 const serviceMethod: TServiceMethod = GetStaffAppointments;
 let parentCategory: Category;
 let loggingCategory: Category;
@@ -178,10 +178,10 @@ switch (service) {
       default:
         throw new Error(
           "Unknown MindBody" +
-            service +
-            'service method " ' +
-            serviceMethod +
-            '"specified.'
+          service +
+          'service method " ' +
+          serviceMethod +
+          '"specified.'
         );
     } // end switch serviceMethod
     break;
@@ -203,10 +203,10 @@ switch (service) {
       default:
         throw new Error(
           "Unknown MindBody" +
-            service +
-            'service method " ' +
-            serviceMethod +
-            '"specified.'
+          service +
+          'service method " ' +
+          serviceMethod +
+          '"specified.'
         );
     } // end switch(serviceMethod)
     break;
@@ -224,10 +224,10 @@ switch (service) {
       default:
         throw new Error(
           "Unknown MindBody" +
-            service +
-            'service method " ' +
-            serviceMethod +
-            '"specified.'
+          service +
+          'service method " ' +
+          serviceMethod +
+          '"specified.'
         );
     } // end switch(serviceMethod)
     break;
