@@ -165,8 +165,7 @@ export class CGetSitesParams implements IGetSitesParamsInternal {
   }
 }
 
-export const siteWSDLURL =
-  "https://api.mindbodyonline.com/0_5_1/SiteService.asmx?wsdl";
+
 
 export const defaultGetResourcesParams: IGetResourcesParamsExternal = new CGetResourcesParams(
   defaults.defaultLocationIDs,

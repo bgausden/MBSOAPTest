@@ -15,6 +15,7 @@ import {
   TAppointmentMethod
 } from "./appointment";
 import { Appointment, Site, Staff } from "./constants/core";
+import { siteWSDLURL, staffWSDLURL } from "./constants/mb_urls";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
 import * as mbsoap from "./mbsoap";
 import { CReminder } from "./reminder";
@@ -23,18 +24,11 @@ import {
   defaultGetSitesRequest,
   GetResources,
   GetSites,
-  siteWSDLURL,
   TSiteMethod
 } from "./site";
-import {
-  defaultGetStaffRequest,
-  GetStaff,
-  staffWSDLURL,
-  TStaffMethod
-} from "./staff";
+import { defaultGetStaffRequest, GetStaff, TStaffMethod } from "./staff";
 import { TServices } from "./types/core";
 import { TServiceMethod } from "./types/core";
-// import * as staff from "./staff";
 import {
   catAppointment,
   catGetStaffAppointments,
@@ -46,7 +40,7 @@ import {
 // This line kill all logging - why? TODO
 // CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
-function createSoapClientAsync(wsdlURL: string): Promise<Client> {
+export function createSoapClientAsync(wsdlURL: string): Promise<Client> {
   return new Promise((resolve: any, reject: any) => {
     createClient(
       wsdlURL,
@@ -123,9 +117,7 @@ function handleResult(
           );
           reminderCache.forEach(reminder => {
             if (reminder.Status !== Confirmed) {
-              catGetStaffAppointments.debug(() =>
-                reminder.toWhatsAppURI()
-              );
+              catGetStaffAppointments.debug(() => reminder.toWhatsAppURI());
             }
           });
           break;
@@ -144,17 +136,17 @@ function handleResult(
   }
 }
 
-const service: TServices = Appointment;
-const serviceMethod: TServiceMethod = GetStaffAppointments;
+const service: TServices = Staff;
+const serviceMethod: TServiceMethod = GetStaff;
 let parentCategory: Category;
 let loggingCategory: Category;
 let request: mbsoap.ISoapRequest;
 // let MBClientPromise: () => Promise<Client>;
-let clientPromise: Promise<Client>;
+let soapClientPromise: Promise<Client>;
 
 switch (service) {
   case Site as string: {
-    clientPromise = createSoapClientAsync(siteWSDLURL);
+    soapClientPromise = createSoapClientAsync(siteWSDLURL);
     parentCategory = catSite;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
@@ -179,7 +171,7 @@ switch (service) {
   } // end case Site
   case Appointment as string: {
     // case SOAP Service == Appointment
-    clientPromise = createSoapClientAsync(appointmentWSDLURL);
+    soapClientPromise = createSoapClientAsync(appointmentWSDLURL);
     parentCategory = catAppointment;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
@@ -204,7 +196,7 @@ switch (service) {
   } // end case Appointment
   case Staff as string: {
     // case SOAP Service == Staff
-    clientPromise = createSoapClientAsync(staffWSDLURL);
+    soapClientPromise = createSoapClientAsync(staffWSDLURL);
     parentCategory = catStaff;
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
@@ -226,7 +218,7 @@ switch (service) {
 } // end switch(service)
 
 // @ts-ignore TS2454
-clientPromise.then(client => {
+soapClientPromise.then(client => {
   const soapMethod = client[serviceMethod] as ISoapMethod;
   soapMethod(request, (err, result) => {
     // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
@@ -250,7 +242,7 @@ clientPromise.then(client => {
   });
 });
 // @ts-ignore TS2454
-clientPromise.catch((reason: any) => {
+soapClientPromise.catch((reason: any) => {
   throw new Error(reason as string);
 });
 
