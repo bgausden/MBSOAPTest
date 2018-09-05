@@ -12,7 +12,7 @@ import {
   IStaffCredentialsInternal,
   IStaffIDsInternal
 } from "./interfaces/core";
-import * as mbsoap from "./mbsoap";
+import * as mbsoap from "./mb_soap";
 import { createSoapClientAsync } from "./mbsoaptest";
 import { CReminder } from "./reminder";
 import { TServices } from "./types/core";

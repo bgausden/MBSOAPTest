@@ -17,7 +17,7 @@ import {
 import { Appointment, Site, Staff } from "./constants/core";
 import { siteWSDLURL, staffWSDLURL } from "./constants/mb_urls";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
-import * as mbsoap from "./mbsoap";
+import * as mbsoap from "./mb_soap";
 import { CReminder } from "./reminder";
 import {
   defaultGetResourcesRequest,

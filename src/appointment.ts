@@ -13,9 +13,9 @@ import {
 } from "./defaults";
 import { IStaffIDsExternal, IStaffIDsInternal } from "./interfaces/core";
 import { CLocationIDs } from "./interfaces/core";
-import { ISoapRequest } from "./mbsoap";
+import { IStaff } from "./interfaces/mb_staff";
+import { ISoapRequest } from "./mb_soap";
 import { IProgram, IResources, ISessionType } from "./site";
-import { IStaff } from "./staff";
 
 export const Confirmed = "Confirmed";
 

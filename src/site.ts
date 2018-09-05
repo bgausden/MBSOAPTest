@@ -3,7 +3,7 @@
 import * as defaults from "./defaults";
 import { CLocationIDs } from "./interfaces/core";
 import { ILocationIDsExternal } from "./interfaces/core";
-import * as mbsoap from "./mbsoap";
+import { ISoapRequest } from "./mb_soap";
 import { TLocationIDsInternal } from "./types/core";
 
 export const GetSites = "GetSites";
@@ -174,7 +174,7 @@ export const defaultGetResourcesParams: IGetResourcesParamsExternal = new CGetRe
   defaults.midnight
 ).toString();
 
-export const defaultGetResourcesRequest: mbsoap.ISoapRequest = {
+export const defaultGetResourcesRequest: ISoapRequest = {
   Request: Object.assign(
     defaultGetResourcesParams,
     defaults.defaultPagingParams
@@ -186,7 +186,7 @@ export const defaultGetSitesParamsExternal: IGetSitesParamsExternal = new CGetSi
   defaults.defaultRelatedSiteID
 ).toString();
 
-export const defaultGetSitesRequest: mbsoap.ISoapRequest = {
+export const defaultGetSitesRequest: ISoapRequest = {
   Request: Object.assign(
     defaultGetSitesParamsExternal,
     defaults.defaultPagingParams, // mandatory

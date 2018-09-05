@@ -16,7 +16,7 @@ interface IGetStaffResponse {
     Staff: IStaff[];
   }
 
-  interface IStaff {
+  export interface IStaff {
     SortOrder: number;
     AppointmentTrn: boolean;
     ReservationTrn: boolean;
