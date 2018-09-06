@@ -1,0 +1,32 @@
+{
+    "GetSitesResult": {
+      "Status": "Success",
+      "ErrorCode": 200,
+      "XMLDetail": "Full",
+      "ResultCount": 1,
+      "CurrentPageIndex": 0,
+      "TotalPageCount": 1,
+      "Sites": {
+        "Site": [
+          {
+            "ID": -99,
+            "Name": "API Sandbox Site",
+            "Description": "\"The MINDBODY Health Club Demo is awesome.\"\r\n - Anonymous (but probably someone cool and smart)",
+            "LogoURL": "https://clients.mindbodyonline.com/studios/DemoAPISandboxRestore/logo_mobile.png?v=97&imageversion=1536111163",
+            "PageColor1": "#405598",
+            "PageColor2": "#8293ca",
+            "PageColor3": "#405598",
+            "PageColor4": "#405598",
+            "AcceptsVisa": true,
+            "AcceptsDiscover": true,
+            "AcceptsMasterCard": true,
+            "AcceptsAmericanExpress": true,
+            "ContactEmail": "info@mindbodyonline.com",
+            "SMSPackageEnabled": false,
+            "AllowsDashboardAccess": true,
+            "PricingLevel": "Legacy"
+          }
+        ]
+      }
+    }
+ }
