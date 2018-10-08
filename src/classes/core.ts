@@ -59,10 +59,9 @@ export class CSourceCredentials implements ISourceCredentialsInternal {
   }
 }
 
-
 export class CStaffIDs {
   constructor(public StaffIDs: TStaffIDsInternal) {}
   public toString(): TStaffIDsExternal {
-    return {StaffIDs: {long: this.StaffIDs }};
+    return { StaffIDs: { long: this.StaffIDs } };
   }
 }

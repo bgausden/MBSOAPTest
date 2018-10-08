@@ -22,6 +22,7 @@ import { CReminder } from "./reminder";
 import {
   defaultGetResourcesRequest,
   defaultGetSitesRequest,
+  GetLocations,
   GetResources,
   GetSites,
   TSiteMethod
@@ -78,6 +79,8 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
     // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
 }; */
 
+// TODO return a TSOAPResponse from handleResult()
+// need this in order to populate the staff cache
 function handleResult(
   svc: TServices,
   svcMethod: TSiteMethod | TAppointmentMethod | TStaffMethod,
@@ -136,11 +139,12 @@ function handleResult(
   }
 }
 
-const service: TServices = Staff;
-const serviceMethod: TServiceMethod = GetStaff;
+// TODO break this out into one or two functions
+const service: TServices = Site;
+const serviceMethod: TServiceMethod = GetSites;
 let parentCategory: Category;
 let loggingCategory: Category;
-let request: mbsoap.ISoapRequest;
+let request: mbsoap.ISoapRequest | undefined;
 // let MBClientPromise: () => Promise<Client>;
 let soapClientPromise: Promise<Client>;
 
@@ -151,11 +155,15 @@ switch (service) {
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
       case GetResources as string: {
-        request = defaultGetResourcesRequest;
+        if (request === undefined) {
+          request = defaultGetResourcesRequest;
+        }
         break;
       }
       case GetSites as string: {
-        request = defaultGetSitesRequest;
+        if (request === undefined) {
+          request = defaultGetSitesRequest;
+        }
         break;
       }
       default:
@@ -176,11 +184,15 @@ switch (service) {
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
       case GetStaffAppointments as string: {
-        request = defaultGetStaffAppointmentsRequest;
+        if (request === undefined) {
+          request = defaultGetStaffAppointmentsRequest;
+        }
         break;
       }
       case GetScheduleItems as string: {
-        request = defaultGetScheduleItemsRequest;
+        if (request === undefined) {
+          request = defaultGetScheduleItemsRequest;
+        }
         break;
       }
       default:
@@ -201,7 +213,9 @@ switch (service) {
     loggingCategory = new Category("cat" + serviceMethod, parentCategory);
     switch (serviceMethod) {
       case GetStaff as string: {
-        request = defaultGetStaffRequest;
+        if (request === undefined) {
+          request = defaultGetStaffRequest;
+        }
         break;
       }
       default:

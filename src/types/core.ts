@@ -7,7 +7,12 @@ import {
   TSite,
   TStaff
 } from "../constants/core";
-import { TSiteMethod } from "../site";
+import {
+  IGetResourcesResponse,
+  IGetSitesResponse
+} from "../interfaces/mb_site";
+import { IGetStaffResponse } from "../interfaces/mb_staff";
+import { IGetResourcesParamsExternal, TSiteMethod } from "../site";
 import { TStaffMethod } from "../staff";
 
 type fullPageDetail = typeof fullPageDetail;
@@ -16,10 +21,12 @@ type barePageDetail = typeof barePageDetail;
 export type TPageDetail = fullPageDetail | basicPageDetail | barePageDetail;
 
 export type TServices = TSite | TAppointment | TStaff;
-export type TServiceMethod =
-  | TSiteMethod
-  | TStaffMethod
-  | TAppointmentMethod;
+export type TServiceMethod = TSiteMethod | TStaffMethod | TAppointmentMethod;
+
+export type TSoapResponse =
+  | IGetStaffResponse
+  | IGetSitesResponse
+  | IGetResourcesResponse;
 
 export type TStaffIDsInternal = number;
 // tslint:disable interface-over-type-literal

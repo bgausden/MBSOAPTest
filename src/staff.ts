@@ -144,3 +144,139 @@ export const defaultGetStaffRequest: mbsoap.ISoapRequest = {
     defaults.defaultPagingParams
   )
 };
+/*
+// TODO change staffID to the type used in MB
+// TODO initialize staffCache with staff info from MB
+const staffID: string = "";
+type TstaffID = typeof staffID;
+// export const staffCache:Map<TstaffID, number> = new Map<TstaffID, number>();
+
+export class CStaffCache {
+  private staffCache: object = {};
+  constructor() {
+    this.initialize();
+  }
+  public initialize() {
+    this.staffCache = {
+      Anson: 2,
+      Ari: 2,
+      Rennie: 0,
+      Rex: 2,
+      Yentl: 1
+    };
+    const staffPromise = createSoapClientAsync(staffWSDLURL);
+    const service = Staff;
+    const serviceMethod = GetStaff;
+    const request = defaultGetStaffRequest;
+    const parentCategory = catStaff;
+    const loggingCategory = new Category("cat" + serviceMethod, parentCategory);
+    staffPromise.then(client => {
+        const soapMethod = client[serviceMethod] as ISoapMethod;
+        soapMethod(request, (err, result) => {
+          // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
+          // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+          if (err) {
+            loggingCategory.debug(
+              // @ts-ignore TS2345:
+              () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+            );
+            throw new Error(JSON.stringify(err));
+          } else {
+            loggingCategory.debug(
+              // @ts-ignore TS2345:
+              () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+            );
+            loggingCategory.debug(
+              () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
+            );
+            handleResult(service, serviceMethod, result);
+          }
+        });
+    });
+  }
+}
+
+function handleResult(
+    svc: TServices,
+    svcMethod: TStaffMethod,
+    result: any
+  ): void {
+    switch (svc) {
+      case Staff:
+        switch (svcMethod as string) {
+          case GetStaff:
+            catGetStaff.debug(
+              () =>
+                `\n\nAppointments: \n\n${prettyjson.render(
+                  result.GetStaffResult.Appointments
+                )}\n\n`
+            );
+            catGetStaff.debug(
+              () => "Loading Appointments into Cache"
+            );
+            const reminderCache = new Map<string, CReminder>();
+            result = result as IGetStaffResult;
+            result.GetStaffResult.Appointments.Appointment.forEach(
+              (element: IAppointment) => {
+                const key = element.ID;
+                const reminder = new CReminder(
+                  element.ID,
+                  element.Client.UniqueID,
+                  element.Client.FirstName,
+                  element.Client.LastName,
+                  element.Status,
+                  element.SessionType.Name,
+                  element.StaffID,
+                  element.Staff.FirstName,
+                  element.StartDateTime
+                );
+                reminderCache.set(key, reminder);
+                catGetStaff.debug(
+                  () => `\n\n${prettyjson.render(reminder)}`
+                );
+              }
+            );
+            reminderCache.forEach(reminder => {
+              if (reminder.Status !== Confirmed) {
+                  // TODO Find the first appointment for the day. Send reminder for this appt only.
+                  // TODO If there are two appts with same time, send reminder for stylist, not assistant.
+                  let reminderID = reminder.ID;
+                  let staffMember = reminder.StaffFirstName;
+                  let clUID = reminder.ClientUniqueID;
+                  let earliestReminder:Date = new Date;
+                  reminderCache.forEach(r => {
+                      if (r.ID !== reminderID) {
+                          if (r.ClientUniqueID === clUID) {
+                              // another reminder for the same client
+                              if (r.StartDateTime.getTime() === reminder.StartDateTime.getTime()) {
+                                  if (staffPrecedence(r.StaffID < staffPrecedence(reminder.StaffID))) {
+                                      reminderCache.delete(r.ID)
+                                  }
+                              }
+                          }
+                      }
+                  });
+                catGetStaff.debug(() =>
+                  reminder.toWhatsAppURI()
+                );
+              }
+            });
+            break;
+
+          default:
+            const errString: string =
+              "Currently not able to process " + " " + svc + ":" + svcMethod;
+            catUnknown.debug(() => errString);
+            throw new Error(errString);
+            break;
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+export function initializeStaffCache() {
+  const staffCache = new Map<string, string>();
+}
+ */
