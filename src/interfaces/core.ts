@@ -1,6 +1,11 @@
+import { Client } from "soap";
+import { Category } from "typescript-logging";
+import { ISoapRequest } from "../mb_soap";
 import {
   TLocationIDsInternal,
   TPageDetail,
+  TServiceMethod,
+  TServices,
   TStaffIDsInternal
 } from "../types/core";
 
@@ -19,7 +24,7 @@ export interface IStaffIDsExternal {
   long: TStaffIDsInternal;
 } // TODO this needs to be changed so we can input more than one staffid
 
- interface ILocationIDsInternal {
+interface ILocationIDsInternal {
   LocationIDs: TLocationIDsInternal;
   toString: () => ILocationIDsExternal;
 }
@@ -81,6 +86,15 @@ export interface ISourceCredentialsInternal {
 export interface IStaffIDsInternal {
   StaffIDs: number;
   toString: () => IStaffIDsExternal;
+}
+
+// Parameter object for making a SOAP request
+export interface IRequestParms {
+  service: TServices;
+  serviceMethod: TServiceMethod;
+  request: ISoapRequest | undefined;
+  soapClientPromise?: Promise<Client>;
+  error?:string;
 }
 
 /* export interface IStaffIDsExternal {
