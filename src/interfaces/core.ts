@@ -1,3 +1,6 @@
+import BluebirdPromise from "bluebird";
+import { Client } from "soap";
+import { ISoapRequest } from "../mb_soap";
 import {
   TLocationIDsInternal,
   TPageDetail,
@@ -81,6 +84,15 @@ export interface ISourceCredentialsInternal {
 export interface IStaffIDsInternal {
   StaffIDs: number;
   toString: () => IStaffIDsExternal;
+}
+
+// Parameter object for making a SOAP request
+export interface IRequestParms {
+  service: TServices;
+  serviceMethod: TServiceMethod;
+  request: ISoapRequest | undefined;
+  soapClientPromise?: Promise<Client>;
+  error?:string;
 }
 
 /* export interface IStaffIDsExternal {
