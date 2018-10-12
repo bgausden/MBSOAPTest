@@ -1,4 +1,4 @@
-// import Promise from "bluebird";
+import { config } from 'node-config-ts';
 import prettyjson = require("prettyjson");
 import { Client, createClient, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
