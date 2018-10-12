@@ -1,8 +1,8 @@
 import BluebirdPromise from "bluebird";
-import { config } from 'node-config-ts';
+import { config } from "node-config-ts";
 import prettyjson = require("prettyjson");
 import { Client, createClient, ISoapMethod } from "soap";
-import { Category } from "typescript-logging";
+import { Category, ConsoleLoggerImpl } from "typescript-logging";
 import xmlformat = require("xml-formatter");
 import {
   appointmentWSDLURL,
@@ -17,7 +17,7 @@ import {
 } from "./appointment";
 import { Appointment, Site, Staff } from "./constants/core";
 import { siteWSDLURL, staffWSDLURL } from "./constants/mb_urls";
-import { defaultSiteIDs, MBAPIKey } from "./defaults";
+import { defaultSiteIDs } from "./defaults";
 import { IRequestParms } from "./interfaces/core";
 import { ISoapRequest } from "./mb_soap";
 import { CReminder } from "./reminder";
@@ -44,12 +44,14 @@ import {
 // This line kill all logging - why? TODO
 // CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
-export function createSoapClientAsync(wsdlURL: string): BluebirdPromise<Client> {
+export function createSoapClientAsync(
+  wsdlURL: string
+): BluebirdPromise<Client> {
   return new BluebirdPromise((resolve: any, reject: any) => {
     createClient(
       wsdlURL,
       (err: any, client: Client): void => {
-        client.addHttpHeader("API-key", MBAPIKey);
+        client.addHttpHeader("API-key", config.APIKey);
         client.addHttpHeader("SiteId", defaultSiteIDs);
         if (err) {
           reject(new Error(err));
@@ -97,7 +99,8 @@ function handleResult(
           handleGetStaffAppointments(svc, svcMethod, result);
           break;
 
-        default: // unknown Appointment method
+        default:
+          // unknown Appointment method
           const errString: string =
             "Currently not able to process " + " " + svc + ":" + svcMethod;
           catUnknown.debug(() => errString);
@@ -111,7 +114,7 @@ function handleResult(
   }
 }
 
-function setRequest(requestParms: IRequestParms): IRequestParms {
+export function setRequest(requestParms: IRequestParms): IRequestParms {
   /* const service = requestParms.service;
   const serviceMethod = requestParms.serviceMethod;
   let parentCategory = requestParms.parentCategory;
@@ -205,13 +208,14 @@ function setRequest(requestParms: IRequestParms): IRequestParms {
   return requestParms;
 }
 
-function makeRequest(requestParms: IRequestParms) {
+export function makeRequest(requestParms: IRequestParms) {
   const service = requestParms.service;
   const serviceMethod = requestParms.serviceMethod;
   let soapClientPromise = requestParms.soapClientPromise;
   const request = requestParms.request;
   let serviceCategory: Category;
   let methodCategory: Category;
+  let returnResult:any;
 
   switch (service) {
     case Site as string: {
@@ -232,11 +236,13 @@ function makeRequest(requestParms: IRequestParms) {
       break;
     }
     default:
-    catUnknown.debug("Unknown MindBody" +
-    service +
-    'service method " ' +
-    serviceMethod +
-    '"specified.');
+      catUnknown.debug(
+        "Unknown MindBody" +
+          service +
+          'service method " ' +
+          serviceMethod +
+          '"specified.'
+      );
 
       throw new Error(
         "Unknown MindBody" +
@@ -265,6 +271,7 @@ function makeRequest(requestParms: IRequestParms) {
         );
         throw new Error(JSON.stringify(err));
       } else {
+        returnResult = result;
         methodCategory.debug(
           // @ts-ignore TS2345:
           () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
@@ -284,16 +291,16 @@ function makeRequest(requestParms: IRequestParms) {
   });
 
   console.log(`Done async\n`);
+  return returnResult;
 }
 
 // main()
 const debugRequestParms: IRequestParms = {
   error: undefined,
   request: undefined,
-  service: Appointment,
-  serviceMethod: GetStaffAppointments,
+  service: config.service,
+  serviceMethod: config.serviceMethod,
   soapClientPromise: undefined
 };
 
-setRequest(debugRequestParms);
 makeRequest(setRequest(debugRequestParms));

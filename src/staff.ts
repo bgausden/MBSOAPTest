@@ -13,8 +13,8 @@ import {
   IStaffIDsInternal
 } from "./interfaces/core";
 import * as mbsoap from "./mb_soap";
-import { createSoapClientAsync } from "./mbsoaptest";
 import { CReminder } from "./reminder";
+import { createSoapClientAsync } from "./request";
 import { TServices } from "./types/core";
 import { catGetStaff, catStaff, catUnknown } from "./typescript-logging-config";
 
