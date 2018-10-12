@@ -1,5 +1,5 @@
+import BluebirdPromise from "bluebird";
 import { Client } from "soap";
-import { Category } from "typescript-logging";
 import { ISoapRequest } from "../mb_soap";
 import {
   TLocationIDsInternal,
@@ -93,8 +93,8 @@ export interface IRequestParms {
   service: TServices;
   serviceMethod: TServiceMethod;
   request: ISoapRequest | undefined;
-  soapClientPromise?: Promise<Client>;
-  error?:string;
+  soapClientPromise?: BluebirdPromise<Client>;
+  error?: string;
 }
 
 /* export interface IStaffIDsExternal {

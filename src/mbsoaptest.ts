@@ -1,3 +1,4 @@
+import BluebirdPromise from "bluebird";
 import { config } from 'node-config-ts';
 import prettyjson = require("prettyjson");
 import { Client, createClient, ISoapMethod } from "soap";
@@ -43,8 +44,8 @@ import {
 // This line kill all logging - why? TODO
 // CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
-export function createSoapClientAsync(wsdlURL: string): Promise<Client> {
-  return new Promise((resolve: any, reject: any) => {
+export function createSoapClientAsync(wsdlURL: string): BluebirdPromise<Client> {
+  return new BluebirdPromise((resolve: any, reject: any) => {
     createClient(
       wsdlURL,
       (err: any, client: Client): void => {
