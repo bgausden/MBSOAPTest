@@ -1,9 +1,10 @@
 {
-    "DEBUG": "1",
+    "DEBUG": true,
+    "DEBUG_REQUESTS": false,
 
     "MBAPIKey": "74b68c31704e40a69e9e60e1ef1de765",
     "LocationID": "0",
-    "SiteIDs": "-99",
+    "SiteIDs": -99,
     "UserName": "Siteowner",
     "UserPassword": "apitest1234",
     "StaffID": "100000296",

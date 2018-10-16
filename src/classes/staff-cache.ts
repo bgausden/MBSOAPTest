@@ -1,8 +1,15 @@
 import { config } from "node-config-ts";
-import { ISoapServiceMethod } from "soap";
-import { IGetStaffResult, IStaff, IStaffMembers } from "../interfaces/mb_staff";
+import { Staff, TStaff } from "../constants/core";
+import {
+  IGetStaffResponse,
+  IGetStaffResult,
+  IStaff,
+  IStaffMembers
+} from "../interfaces/mb_staff";
 import { makeRequest, setRequest } from "../request";
-import { TLocationIDs, TSiteID } from "../types/site";
+import { GetStaff } from "../staff";
+import { TServiceMethod } from "../types/core";
+import { TSiteID } from "../types/site";
 
 // There should only ever be a single instance of the Staff Cache Array
 
@@ -20,15 +27,16 @@ export function getStaffFromCache(
     // Initialize the cache entry for this site
     // GetStaff for siteID
     let result: IGetStaffResult;
+    let response: IGetStaffResponse;
     const requestParms = {
       error: undefined,
       request: undefined,
-      service: config.service,
-      serviceMethod: config.serviceMethod,
+      service: Staff as TStaff,
+      serviceMethod: GetStaff as TServiceMethod,
       soapClientPromise: undefined
     };
-    result = makeRequest(setRequest(requestParms)) as IGetStaffResult;
-
+    response = (makeRequest(setRequest(requestParms)) as IGetStaffResponse);
+    result = response.GetStaffResult;
     StaffCache.set(siteID, result.StaffMembers);
   }
   let staff = null;
@@ -48,3 +56,5 @@ export function getStaffFromCache(
   });
   return staff;
 }
+
+// main()

@@ -1,41 +1,33 @@
 import BluebirdPromise from "bluebird";
 import { config } from "node-config-ts";
-import prettyjson = require("prettyjson");
+import prettyjson from "prettyjson";
 import { Client, createClient, ISoapMethod } from "soap";
-import { Category, ConsoleLoggerImpl } from "typescript-logging";
-import xmlformat = require("xml-formatter");
+import { Category } from "typescript-logging";
+// import xmlformat = require("xml-formatter"); // is a Modular Library (contains module.exports= ) so need to use require() syntax. Legal but not really Typescript
+// import * as xmlformat from "xml-formatter"; // doesn't work when importing a function
+import xmlformat from "xml-formatter"; // alternative to using require() and works when the default export is a function
 import {
   appointmentWSDLURL,
-  Confirmed,
   defaultGetScheduleItemsRequest,
   defaultGetStaffAppointmentsRequest,
   GetScheduleItems,
-  GetStaffAppointments,
-  IAppointment,
-  IGetStaffAppointmentsResult,
-  TAppointmentMethod
+  GetStaffAppointments
 } from "./appointment";
+import { getStaffFromCache } from "./classes/staff-cache";
 import { Appointment, Site, Staff } from "./constants/core";
 import { siteWSDLURL, staffWSDLURL } from "./constants/mb_urls";
 import { defaultSiteIDs } from "./defaults";
 import { IRequestParms } from "./interfaces/core";
-import { ISoapRequest } from "./mb_soap";
-import { CReminder } from "./reminder";
-import { handleGetStaffAppointments } from "./resultHandlers/get_staff_appointments";
 import {
   defaultGetResourcesRequest,
   defaultGetSitesRequest,
-  GetLocations,
   GetResources,
-  GetSites,
-  TSiteMethod
+  GetSites
 } from "./site";
-import { defaultGetStaffRequest, GetStaff, TStaffMethod } from "./staff";
-import { TServices } from "./types/core";
-import { TServiceMethod } from "./types/core";
+import { defaultGetStaffRequest, GetStaff } from "./staff";
+import { TSoapResponse } from "./types/core";
 import {
   catAppointment,
-  catGetStaffAppointments,
   catSite,
   catStaff,
   catUnknown
@@ -51,7 +43,7 @@ export function createSoapClientAsync(
     createClient(
       wsdlURL,
       (err: any, client: Client): void => {
-        client.addHttpHeader("API-key", config.APIKey);
+        client.addHttpHeader("API-key", config.MBAPIKey);
         client.addHttpHeader("SiteId", defaultSiteIDs);
         if (err) {
           reject(new Error(err));
@@ -61,57 +53,6 @@ export function createSoapClientAsync(
       }
     );
   });
-}
-
-// the callback for the soap method can be defined independently but we then lose the ability to interact with the "client" object.
-// while we're hacking on the code, it's probably easier to retain access to the client (e.g. client.LastRequest by keeping the callback
-// definition in-line with the soap method call)
-/* interface ISoapMethodCallback {
-    (err: any, result: object, raw: any, soapHeader: any): void;
-}
-const getScheduleItemsCallback: ISoapMethodCallback = (
-    err,
-    result,
-    raw,
-    soapHeader
-) => {
-    console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
-    // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
-    catGetScheduleItems.debug(
-        () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}`
-    );
-    // you cannot access client in this context
-    // console.log(`lastRequest: \n\n${client.lastRequest}\n`);
-}; */
-
-// TODO return a TSOAPResponse from handleResult()
-// need this in order to populate the staff cache
-
-function handleResult(
-  svc: TServices,
-  svcMethod: TSiteMethod | TAppointmentMethod | TStaffMethod,
-  result: any
-): void {
-  switch (svc) {
-    case Appointment:
-      switch (svcMethod as string) {
-        case GetStaffAppointments:
-          handleGetStaffAppointments(svc, svcMethod, result);
-          break;
-
-        default:
-          // unknown Appointment method
-          const errString: string =
-            "Currently not able to process " + " " + svc + ":" + svcMethod;
-          catUnknown.debug(() => errString);
-          throw new Error(errString);
-          break;
-      }
-      break;
-
-    default:
-      break;
-  }
 }
 
 export function setRequest(requestParms: IRequestParms): IRequestParms {
@@ -208,14 +149,14 @@ export function setRequest(requestParms: IRequestParms): IRequestParms {
   return requestParms;
 }
 
-export function makeRequest(requestParms: IRequestParms) {
+export function makeRequest(requestParms: IRequestParms): TSoapResponse {
   const service = requestParms.service;
   const serviceMethod = requestParms.serviceMethod;
   let soapClientPromise = requestParms.soapClientPromise;
   const request = requestParms.request;
   let serviceCategory: Category;
   let methodCategory: Category;
-  let returnResult:any;
+  let returnResult: TSoapResponse;
 
   switch (service) {
     case Site as string: {
@@ -262,23 +203,27 @@ export function makeRequest(requestParms: IRequestParms) {
   soapClientPromise.then(client => {
     const soapMethod = client[serviceMethod] as ISoapMethod;
     soapMethod(request, (err, result) => {
-      // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
-      // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
       if (err) {
-        serviceCategory.debug(
-          // @ts-ignore TS2345:
-          () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
-        );
+        if (config.DEBUG_REQUESTS) {
+          serviceCategory.debug(
+            // @ts-ignore TS2345:
+            () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+          );
+        }
         throw new Error(JSON.stringify(err));
       } else {
         returnResult = result;
-        methodCategory.debug(
-          // @ts-ignore TS2345:
-          () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
-        );
-        methodCategory.debug(
-          () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
-        );
+        if (config.DEBUG_REQUESTS) {
+          methodCategory.debug(
+            // @ts-ignore TS2345:
+            () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+          );
+        }
+        if (config.DEBUG) {
+          methodCategory.debug(
+            () => `\n\nresult: \n\n${prettyjson.render(result)}\n`
+          );
+        }
 
         // TODO maybe don't need a default handler for each service/method?
         // handleResult(service, serviceMethod, result);
@@ -290,8 +235,10 @@ export function makeRequest(requestParms: IRequestParms) {
     throw new Error(reason as string);
   });
 
-  console.log(`Done async\n`);
-  return returnResult;
+  if (config.DEBUG) {
+    methodCategory.debug(() => `\n\nWaiting for MindBody\n`);
+  }
+  return returnResult!;
 }
 
 // main()
@@ -304,3 +251,4 @@ const debugRequestParms: IRequestParms = {
 };
 
 makeRequest(setRequest(debugRequestParms));
+// JSON.stringify(getStaffFromCache(config.SiteIDs, "100000024"));
