@@ -1,9 +1,11 @@
 import BluebirdPromise from "bluebird";
 import { Client } from "soap";
-import { ISoapRequest } from "../mb_soap";
+import { ISoapRequest } from "../mbsoap";
 import {
   TLocationIDsInternal,
   TPageDetail,
+  TServiceMethod,
+  TServices,
   TStaffIDsInternal
 } from "../types/core";
 
