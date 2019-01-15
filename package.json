@@ -2,7 +2,7 @@
     "name": "mbsoaptest",
     "version": "0.0.1",
     "description": "Test code for MB SOAP interface",
-    "main": "request.js",
+    "main": "dist/request",
     "scripts": {
         "postinstall": "node-config-ts",
         "tslint-check": "tslint-config-prettier-check ./tslint.json",

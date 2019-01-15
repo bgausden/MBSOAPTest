@@ -8,17 +8,16 @@
             "name": "Current TS File",
             "type": "node",
             "request": "launch",
-            "args": ["${relativeFile}"],
+            "args": ["${file}"],
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
             "sourceMaps": true,
             "cwd": "${workspaceRoot}",
             "protocol": "inspector"
         },
         {
-            "name": "request.ts"
+            "name": "Launch request.ts",
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
             "program": "${workspaceRoot}/src/request.ts",
             "outFiles": ["${workspaceFolder}/dist/**/*.js"],
             "console": "integratedTerminal"

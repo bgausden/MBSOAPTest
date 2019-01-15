@@ -191,6 +191,5 @@ export const defaultGetSitesRequest: ISoapRequest = {
     defaultGetSitesParamsExternal,
     defaults.defaultPagingParams, // mandatory
     defaults.defaultPageDetail, // mandatory
-    defaults.defaultSourceCredentials.toString() // mandatory
   )
 };

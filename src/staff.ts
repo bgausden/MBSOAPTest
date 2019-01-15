@@ -5,6 +5,7 @@
 import { ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
 import { CStaffCredentials, CStaffIDs } from "./classes/core";
+import { CReminder } from "./classes/CReminder";
 import { Staff } from "./constants/core";
 import * as defaults from "./defaults";
 import { defaultStaffIDs } from "./defaults";
@@ -13,7 +14,6 @@ import {
   IStaffIDsInternal
 } from "./interfaces/core";
 import * as mbsoap from "./mb_soap";
-import { CReminder } from "./reminder";
 import { createSoapClientAsync } from "./request";
 import { TServices } from "./types/core";
 import { catGetStaff, catStaff, catUnknown } from "./typescript-logging-config";

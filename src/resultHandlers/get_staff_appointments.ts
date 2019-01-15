@@ -1,6 +1,6 @@
 import { catGetStaffAppointments } from "../typescript-logging-config";
 
-import { CReminder } from "../reminder";
+import { CReminder } from "../classes/CReminder";
 
 import {
   Confirmed,

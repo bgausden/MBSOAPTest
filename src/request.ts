@@ -5,7 +5,7 @@ import { Client, createClient, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
 // import xmlformat = require("xml-formatter"); // is a Modular Library (contains module.exports= ) so need to use require() syntax. Legal but not really Typescript
 // import * as xmlformat from "xml-formatter"; // doesn't work when importing a function
-import xmlformat from "xml-formatter"; // alternative to using require() and works when the default export is a function
+import xmlformat from "./@types/xml-formatter"; // alternative to using require() and works when the default export is a function
 import {
   appointmentWSDLURL,
   defaultGetScheduleItemsRequest,
@@ -25,7 +25,7 @@ import {
   GetSites
 } from "./site";
 import { defaultGetStaffRequest, GetStaff } from "./staff";
-import { TSoapResponse } from "./types/core";
+import { TServiceMethod, TServices, TSoapResponse } from "./types/core";
 import {
   catAppointment,
   catSite,
@@ -43,7 +43,7 @@ export function createSoapClientAsync(
     createClient(
       wsdlURL,
       (err: any, client: Client): void => {
-        client.addHttpHeader("API-key", config.MBAPIKey);
+        client.addHttpHeader("API-key", config.APIKey);
         client.addHttpHeader("SiteId", defaultSiteIDs);
         if (err) {
           reject(new Error(err));
@@ -204,7 +204,7 @@ export function makeRequest(requestParms: IRequestParms): TSoapResponse {
     const soapMethod = client[serviceMethod] as ISoapMethod;
     soapMethod(request, (err, result) => {
       if (err) {
-        if (config.DEBUG_REQUESTS) {
+        if (config.SOAP_DEBUG_REQUESTS) {
           serviceCategory.debug(
             // @ts-ignore TS2345:
             () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
@@ -213,13 +213,13 @@ export function makeRequest(requestParms: IRequestParms): TSoapResponse {
         throw new Error(JSON.stringify(err));
       } else {
         returnResult = result;
-        if (config.DEBUG_REQUESTS) {
+        if (config.SOAP_DEBUG_REQUESTS) {
           methodCategory.debug(
             // @ts-ignore TS2345:
             () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
           );
         }
-        if (config.DEBUG) {
+        if (config.SOAP_DEBUG) {
           methodCategory.debug(
             () => `\n\nresult: \n\n${prettyjson.render(result)}\n`
           );
@@ -235,7 +235,7 @@ export function makeRequest(requestParms: IRequestParms): TSoapResponse {
     throw new Error(reason as string);
   });
 
-  if (config.DEBUG) {
+  if (config.SOAP_DEBUG) {
     methodCategory.debug(() => `\n\nWaiting for MindBody\n`);
   }
   return returnResult!;
@@ -245,8 +245,8 @@ export function makeRequest(requestParms: IRequestParms): TSoapResponse {
 const debugRequestParms: IRequestParms = {
   error: undefined,
   request: undefined,
-  service: config.service,
-  serviceMethod: config.serviceMethod,
+  service: config.service as TServices,
+  serviceMethod: config.serviceMethod as TServiceMethod,
   soapClientPromise: undefined
 };
 

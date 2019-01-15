@@ -12,7 +12,7 @@ import {
   IGetSitesResponse
 } from "../interfaces/mb_site";
 import { IGetStaffResponse } from "../interfaces/mb_staff";
-import { IGetResourcesParamsExternal, TSiteMethod } from "../site";
+import { TSiteMethod } from "../site";
 import { TStaffMethod } from "../staff";
 
 type fullPageDetail = typeof fullPageDetail;
@@ -28,7 +28,7 @@ export type TSoapResponse =
   | IGetSitesResponse
   | IGetResourcesResponse;
 
-export type TStaffIDsInternal = number;
+export type TStaffIDsInternal = string;
 // tslint:disable interface-over-type-literal
 export type TStaffIDsExternal = { StaffIDs: { long: TStaffIDsInternal } };
 
