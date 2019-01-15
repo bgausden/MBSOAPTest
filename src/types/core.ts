@@ -2,10 +2,7 @@ import { TAppointmentMethod } from "../appointment";
 import {
   barePageDetail,
   basicPageDetail,
-  fullPageDetail,
-  TAppointment,
-  TSite,
-  TStaff
+  fullPageDetail
 } from "../constants/core";
 import {
   IGetResourcesResponse,
@@ -20,7 +17,7 @@ type basicPageDetail = typeof basicPageDetail;
 type barePageDetail = typeof barePageDetail;
 export type TPageDetail = fullPageDetail | basicPageDetail | barePageDetail;
 
-export type TServices = TSite | TAppointment | TStaff;
+export type TServices = "Site" | "Appointment" | "Staff";
 export type TServiceMethod = TSiteMethod | TStaffMethod | TAppointmentMethod;
 
 export type TSoapResponse =

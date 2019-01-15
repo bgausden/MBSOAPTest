@@ -3,9 +3,7 @@ import { config } from "node-config-ts";
 import prettyjson from "prettyjson";
 import { Client, createClient, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
-// import xmlformat = require("xml-formatter"); // is a Modular Library (contains module.exports= ) so need to use require() syntax. Legal but not really Typescript
-// import * as xmlformat from "xml-formatter"; // doesn't work when importing a function
-import xmlformat from "./@types/xml-formatter"; // alternative to using require() and works when the default export is a function
+import xmlformat from "xml-formatter"; // note relying on tsconfig.json "typeRoots" to help find  custom typings in ./src/@types/xml-formatter/xml-formatter.d.ts
 import {
   appointmentWSDLURL,
   defaultGetScheduleItemsRequest,
@@ -26,6 +24,7 @@ import {
 } from "./site";
 import { defaultGetStaffRequest, GetStaff } from "./staff";
 import { TServiceMethod, TServices, TSoapResponse } from "./types/core";
+
 import {
   catAppointment,
   catSite,

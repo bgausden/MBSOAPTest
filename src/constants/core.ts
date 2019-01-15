@@ -11,13 +11,13 @@ const localeDateStringOptions = {
 
 // MindBody Soap Services
 export const Site = "Site";
-export type TSite = typeof Site;
+// export type TSite = typeof Site;
 
 export const Appointment = "Appointment";
-export type TAppointment = typeof Appointment;
+// export type TAppointment = typeof Appointment;
 
 export const Staff = "Staff";
-export type TStaff = typeof Staff;
+// export type TStaff = typeof Staff;
 
 // MindBody SOAP Page Detail
 export const fullPageDetail = "Full"

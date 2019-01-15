@@ -1,5 +1,5 @@
 import { config } from "node-config-ts";
-import { Staff, TStaff } from "../constants/core";
+import { Staff } from "../constants/core";
 import { IRequestParms } from "../interfaces/core";
 import {
   IGetStaffResponse,
@@ -38,7 +38,7 @@ export function getStaffFromCache(
     const requestParms: IRequestParms = {
       error: undefined,
       request: undefined,
-      service: Staff as TStaff,
+      service: Staff,
       serviceMethod: GetStaff as TServiceMethod,
       soapClientPromise: undefined
     };
