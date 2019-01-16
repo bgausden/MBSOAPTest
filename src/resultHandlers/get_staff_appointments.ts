@@ -2,17 +2,15 @@ import { catGetStaffAppointments } from "../typescript-logging-config";
 
 import { CReminder } from "../classes/CReminder";
 
-import {
-  Confirmed,
-  IAppointment,
-  IGetStaffAppointmentsResult,
-  TAppointmentMethod
-} from "../appointment";
-import { TSiteMethod } from "../site";
-import { TStaffMethod } from "../staff";
 import { TServices } from "../types/core";
 
 import prettyjson = require("prettyjson");
+import { Confirmed } from "src/constants/appointments";
+// tslint:disable-next-line:ordered-imports
+import { IAppointment, IGetStaffAppointmentsResult } from "src/interfaces/mb_appointment";
+import { TAppointmentMethod } from "src/types/appointment";
+import { TSiteMethod } from "src/types/site";
+import { TStaffMethod } from "src/types/staff";
 
 export function handleGetStaffAppointments(
   svc: TServices,

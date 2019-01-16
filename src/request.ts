@@ -3,28 +3,37 @@ import { config } from "node-config-ts";
 import prettyjson from "prettyjson";
 import { Client, createClient, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
-import xmlformat from "xml-formatter"; // note relying on tsconfig.json "typeRoots" to help find  custom typings in ./src/@types/xml-formatter/xml-formatter.d.ts
+import xmlformat from "xml-formatter"; // note relying on tsconfig.json "typeRoots" to help find  custom typings in ../@types/xml-formatter/xml-formatter.d.ts
+import { getStaffFromCache } from "./classes/staff-cache";
+import { Appointment, defaultSiteIDs, Site, Staff } from "./constants/core";
 import {
   appointmentWSDLURL,
+  siteWSDLURL,
+  staffWSDLURL
+} from "./constants/mb_urls";
+import { IRequestParms, ISoapRequest } from "./interfaces/core";
+
+import {
+  TServiceMethod,
+  TServiceMethodParamsExternal,
+  TServices,
+  TSoapResponse
+} from "./types/core";
+
+import { CRequestParms } from "./classes/CRequestParms";
+import {
   defaultGetScheduleItemsRequest,
   defaultGetStaffAppointmentsRequest,
   GetScheduleItems,
   GetStaffAppointments
-} from "./appointment";
-import { getStaffFromCache } from "./classes/staff-cache";
-import { Appointment, Site, Staff } from "./constants/core";
-import { siteWSDLURL, staffWSDLURL } from "./constants/mb_urls";
-import { defaultSiteIDs } from "./defaults";
-import { IRequestParms } from "./interfaces/core";
+} from "./constants/appointments";
 import {
   defaultGetResourcesRequest,
   defaultGetSitesRequest,
   GetResources,
   GetSites
-} from "./site";
-import { defaultGetStaffRequest, GetStaff } from "./staff";
-import { TServiceMethod, TServices, TSoapResponse } from "./types/core";
-
+} from "./constants/site";
+import { defaultGetStaffRequest, GetStaff } from "./constants/staff";
 import {
   catAppointment,
   catSite,
@@ -64,6 +73,7 @@ export function setRequest(requestParms: IRequestParms): IRequestParms {
 
   switch (requestParms.service) {
     case Site as string: {
+      // Calling to the Site service
       switch (requestParms.serviceMethod) {
         case GetResources as string: {
           if (requestParms.request === undefined) {
@@ -80,6 +90,7 @@ export function setRequest(requestParms: IRequestParms): IRequestParms {
         }
 
         default:
+          // Fall-through. We don't recognise/handle the requested serviceMethod
           requestParms.error =
             "Unknown MindBody" +
             requestParms.service +
@@ -109,6 +120,7 @@ export function setRequest(requestParms: IRequestParms): IRequestParms {
         }
 
         default:
+          // Fall-through. We don't recognise/handle the requested serviceMethod
           requestParms.error =
             "Unknown MindBody" +
             requestParms.service +
@@ -132,7 +144,7 @@ export function setRequest(requestParms: IRequestParms): IRequestParms {
         }
 
         default:
-          // We don't know what this Staff method is
+          // Fall-through. We don't recognise/handle the requested serviceMethod
           requestParms.error =
             "Unknown MindBody" +
             requestParms.service +
@@ -241,13 +253,20 @@ export function makeRequest(requestParms: IRequestParms): TSoapResponse {
 }
 
 // main()
-const debugRequestParms: IRequestParms = {
+const debugRequestParms = new CRequestParms(config.service as TServices, config.serviceMethod as TServiceMethod, undefined, undefined, undefined)
+
+/* const debugRequestParms: IRequestParms = {
   error: undefined,
   request: undefined,
   service: config.service as TServices,
   serviceMethod: config.serviceMethod as TServiceMethod,
   soapClientPromise: undefined
-};
+}; */
+
+/* export function wrapRequest(params: TServiceMethodParamsExternal): ISoapRequest {
+  // return an object with one property "Request" whose value is the param Object
+  return { Request: params };
+} */
 
 makeRequest(setRequest(debugRequestParms));
 // JSON.stringify(getStaffFromCache(config.SiteIDs, "100000024"));

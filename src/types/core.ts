@@ -1,4 +1,6 @@
-import { TAppointmentMethod } from "../appointment";
+import { IGetScheduleItemsParamsExternal } from "src/interfaces/appointment";
+import { IGetResourcesParamsExternal, IGetSitesParamsExternal } from "src/interfaces/site";
+import { IGetStaffParamsExternal } from "src/interfaces/staff";
 import {
   barePageDetail,
   basicPageDetail,
@@ -9,8 +11,9 @@ import {
   IGetSitesResponse
 } from "../interfaces/mb_site";
 import { IGetStaffResponse } from "../interfaces/mb_staff";
-import { TSiteMethod } from "../site";
-import { TStaffMethod } from "../staff";
+import { TAppointmentMethod } from "./appointment";
+import { TSiteMethod } from "./site";
+import { TStaffMethod } from "./staff";
 
 type fullPageDetail = typeof fullPageDetail;
 type basicPageDetail = typeof basicPageDetail;
@@ -30,3 +33,9 @@ export type TStaffIDsInternal = string;
 export type TStaffIDsExternal = { StaffIDs: { long: TStaffIDsInternal } };
 
 export type TLocationIDsInternal = number; // TODO this needs to be changed so we can input more than one locID
+
+export type TServiceMethodParamsExternal =
+| IGetResourcesParamsExternal
+| IGetSitesParamsExternal
+| IGetScheduleItemsParamsExternal
+| IGetStaffParamsExternal;

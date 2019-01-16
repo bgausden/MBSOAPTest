@@ -1,10 +1,10 @@
 import BluebirdPromise from "bluebird";
 import { Client } from "soap";
-import { ISoapRequest } from "../mb_soap";
 import {
   TLocationIDsInternal,
   TPageDetail,
   TServiceMethod,
+  TServiceMethodParamsExternal,
   TServices,
   TStaffIDsInternal
 } from "../types/core";
@@ -101,3 +101,8 @@ export interface IRequestParms {
     StaffIDs: {long: TStaffIDsInternal}
 }
  */
+
+// ISoapRequest is an object with a single member "Request". The value is an object containing the request parameters. We pass this to the SOAP library
+export interface ISoapRequest {
+  Request: TServiceMethodParamsExternal;
+}

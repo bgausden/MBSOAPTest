@@ -1,4 +1,5 @@
 import { config } from "node-config-ts";
+import { GetStaff } from "src/constants/staff";
 import { Staff } from "../constants/core";
 import { IRequestParms } from "../interfaces/core";
 import {
@@ -8,7 +9,6 @@ import {
   IStaffMembers
 } from "../interfaces/mb_staff";
 import { makeRequest, setRequest } from "../request";
-import { GetStaff } from "../staff";
 import { TServiceMethod } from "../types/core";
 import { TSiteID } from "../types/site";
 import { TFirstName, TLastName, TStaffID} from "../types/staff"
