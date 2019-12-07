@@ -169,7 +169,9 @@ switch (service) {
                 break;
             }
             default:
-                throw new Error(`Unknown Mindbody ${service} service method "${serviceMethod}" specified.`);
+                throw new Error(
+                    `Unknown Mindbody ${service} service method "${serviceMethod}" specified.`
+                );
         } // end switch (serviceMethod)
         break;
     } // end case Site
