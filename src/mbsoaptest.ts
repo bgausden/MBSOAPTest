@@ -1,67 +1,64 @@
 import BluebirdPromise from "bluebird";
-import { config } from 'node-config-ts';
+import { config } from "node-config-ts";
 import prettyjson = require("prettyjson");
 import { Client, createClient, ISoapMethod } from "soap";
 import { Category } from "typescript-logging";
 import xmlformat = require("xml-formatter");
 import {
-  appointmentWSDLURL,
-  Confirmed,
-  defaultGetScheduleItemsRequest,
-  defaultGetStaffAppointmentsRequest,
-  GetScheduleItems,
-  GetStaffAppointments,
-  IAppointment,
-  IGetStaffAppointmentsResult,
-  TAppointmentMethod
+    appointmentWSDLURL,
+    Confirmed,
+    defaultGetScheduleItemsRequest,
+    defaultGetStaffAppointmentsRequest,
+    GetScheduleItems,
+    GetStaffAppointments,
+    IAppointment,
+    IGetStaffAppointmentsResult,
+    TAppointmentMethod
 } from "./appointment";
 import { Appointment, Site, Staff } from "./constants/core";
 import { defaultSiteIDs, MBAPIKey } from "./defaults";
 import * as mbsoap from "./mbsoap";
 import { CReminder } from "./reminder";
 import {
-  defaultGetResourcesRequest,
-  defaultGetSitesRequest,
-  GetResources,
-  GetSites,
-  siteWSDLURL,
-  TSiteMethod
+    defaultGetResourcesRequest,
+    defaultGetSitesRequest,
+    GetResources,
+    GetSites,
+    siteWSDLURL,
+    TSiteMethod
 } from "./site";
 import {
-  defaultGetStaffRequest,
-  GetStaff,
-  staffWSDLURL,
-  TStaffMethod
+    defaultGetStaffRequest,
+    GetStaff,
+    staffWSDLURL,
+    TStaffMethod
 } from "./staff";
 import { TServices } from "./types/core";
 import { TServiceMethod } from "./types/core";
 // import * as staff from "./staff";
 import {
-  catAppointment,
-  catGetStaffAppointments,
-  catSite,
-  catStaff,
-  catUnknown
+    catAppointment,
+    catGetStaffAppointments,
+    catSite,
+    catStaff,
+    catUnknown
 } from "./typescript-logging-config";
 
-// This line kill all logging - why? TODO
+// This line kills all logging - why? TODO
 // CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLevel.Info));
 
 export function createSoapClientAsync(wsdlURL: string): Promise<Client> {
-  return new Promise((resolve: any, reject: any) => {
-    createClient(
-      wsdlURL,
-      (err: any, client: Client): void => {
-        client.addHttpHeader("API-key", MBAPIKey);
-        client.addHttpHeader("SiteId", defaultSiteIDs);
-        if (err) {
-          reject(new Error(err));
-        } else {
-          resolve(client);
-        }
-      }
-    );
-  });
+    return new Promise((resolve: any, reject: any) => {
+        createClient(wsdlURL, (err: any, client: Client): void => {
+            client.addHttpHeader("API-key", MBAPIKey);
+            client.addHttpHeader("SiteId", defaultSiteIDs);
+            if (err) {
+                reject(new Error(err));
+            } else {
+                resolve(client);
+            }
+        });
+    });
 }
 
 // the callback for the soap method can be defined independently but we then lose the ability to interact with the "client" object.
@@ -86,63 +83,67 @@ const getScheduleItemsCallback: ISoapMethodCallback = (
 }; */
 
 function handleResult(
-  svc: TServices,
-  svcMethod: TSiteMethod | TAppointmentMethod | TStaffMethod,
-  result: any
+    svc: TServices,
+    svcMethod: TSiteMethod | TAppointmentMethod | TStaffMethod,
+    result: any
 ): void {
-  switch (svc) {
-    case Appointment:
-      switch (svcMethod as string) {
-        case GetStaffAppointments:
-          catGetStaffAppointments.debug(
-            () =>
-              `\n\nAppointments: \n\n${prettyjson.render(
-                result.GetStaffAppointmentsResult.Appointments
-              )}\n\n`
-          );
-          catGetStaffAppointments.debug(
-            () => "Loading Appointments into Cache"
-          );
-          const reminderCache = new Map<string, CReminder>();
-          result = result as IGetStaffAppointmentsResult;
-          result.GetStaffAppointmentsResult.Appointments.Appointment.forEach(
-            (element: IAppointment) => {
-              const key = element.ID;
-              const reminder = new CReminder(
-                element.ID,
-                element.Client.FirstName,
-                element.Status,
-                element.SessionType.Name,
-                element.Staff.FirstName,
-                element.StartDateTime
-              );
-              reminderCache.set(key, reminder);
-              catGetStaffAppointments.debug(
-                () => `\n\n${prettyjson.render(reminder)}`
-              );
+    switch (svc) {
+        case Appointment:
+            switch (svcMethod as string) {
+                case GetStaffAppointments:
+                    catGetStaffAppointments.debug(
+                        () =>
+                            `\n\nAppointments: \n\n${prettyjson.render(
+                                result.GetStaffAppointmentsResult.Appointments
+                            )}\n\n`
+                    );
+                    catGetStaffAppointments.debug(
+                        () => "Loading Appointments into Cache"
+                    );
+                    const reminderCache = new Map<string, CReminder>();
+                    result = result as IGetStaffAppointmentsResult;
+                    result.GetStaffAppointmentsResult.Appointments.Appointment.forEach(
+                        (element: IAppointment) => {
+                            const key = element.ID;
+                            const reminder = new CReminder(
+                                element.ID,
+                                element.Client.FirstName,
+                                element.Status,
+                                element.SessionType.Name,
+                                element.Staff.FirstName,
+                                element.StartDateTime
+                            );
+                            reminderCache.set(key, reminder);
+                            catGetStaffAppointments.debug(
+                                () => `\n\n${prettyjson.render(reminder)}`
+                            );
+                        }
+                    );
+                    reminderCache.forEach(reminder => {
+                        if (reminder.Status !== Confirmed) {
+                            catGetStaffAppointments.debug(() =>
+                                reminder.toWhatsAppURI()
+                            );
+                        }
+                    });
+                    break;
+
+                default:
+                    const errString: string =
+                        "Currently not able to process " +
+                        " " +
+                        svc +
+                        ":" +
+                        svcMethod;
+                    catUnknown.debug(() => errString);
+                    throw new Error(errString);
+                    break;
             }
-          );
-          reminderCache.forEach(reminder => {
-            if (reminder.Status !== Confirmed) {
-              catGetStaffAppointments.debug(() =>
-                reminder.toWhatsAppURI()
-              );
-            }
-          });
-          break;
+            break;
 
         default:
-          const errString: string =
-            "Currently not able to process " + " " + svc + ":" + svcMethod;
-          catUnknown.debug(() => errString);
-          throw new Error(errString);
-          break;
-      }
-      break;
-
-    default:
-      break;
-  }
+            break;
+    }
 }
 
 const service: TServices = Appointment;
@@ -154,105 +155,97 @@ let request: mbsoap.ISoapRequest;
 let clientPromise: Promise<Client>;
 
 switch (service) {
-  case Site as string: {
-    clientPromise = createSoapClientAsync(siteWSDLURL);
-    parentCategory = catSite;
-    loggingCategory = new Category("cat" + serviceMethod, parentCategory);
-    switch (serviceMethod) {
-      case GetResources as string: {
-        request = defaultGetResourcesRequest;
+    case Site as string: {
+        clientPromise = createSoapClientAsync(siteWSDLURL);
+        parentCategory = catSite;
+        loggingCategory = new Category("cat" + serviceMethod, parentCategory);
+        switch (serviceMethod) {
+            case GetResources as string: {
+                request = defaultGetResourcesRequest;
+                break;
+            }
+            case GetSites as string: {
+                request = defaultGetSitesRequest;
+                break;
+            }
+            default:
+                throw new Error(`Unknown Mindbody ${service} service method "${serviceMethod}" specified.`);
+        } // end switch (serviceMethod)
         break;
-      }
-      case GetSites as string: {
-        request = defaultGetSitesRequest;
+    } // end case Site
+    case Appointment as string: {
+        // case SOAP Service == Appointment
+        clientPromise = createSoapClientAsync(appointmentWSDLURL);
+        parentCategory = catAppointment;
+        loggingCategory = new Category("cat" + serviceMethod, parentCategory);
+        switch (serviceMethod) {
+            case GetStaffAppointments as string: {
+                request = defaultGetStaffAppointmentsRequest;
+                break;
+            }
+            case GetScheduleItems as string: {
+                request = defaultGetScheduleItemsRequest;
+                break;
+            }
+            default:
+                throw new Error(
+                    `Unknown MindBody service "${service}" method "${serviceMethod}" specified.`
+                );
+        } // end switch(serviceMethod)
         break;
-      }
-      default:
-        throw new Error(
-          "Unknown MindBody" +
-            service +
-            'service method " ' +
-            serviceMethod +
-            '"specified.'
-        );
-    } // end switch serviceMethod
-    break;
-  } // end case Site
-  case Appointment as string: {
-    // case SOAP Service == Appointment
-    clientPromise = createSoapClientAsync(appointmentWSDLURL);
-    parentCategory = catAppointment;
-    loggingCategory = new Category("cat" + serviceMethod, parentCategory);
-    switch (serviceMethod) {
-      case GetStaffAppointments as string: {
-        request = defaultGetStaffAppointmentsRequest;
+    } // end case Appointment
+    case Staff as string: {
+        // case SOAP Service == Staff
+        clientPromise = createSoapClientAsync(staffWSDLURL);
+        parentCategory = catStaff;
+        loggingCategory = new Category("cat" + serviceMethod, parentCategory);
+        switch (serviceMethod) {
+            case GetStaff as string: {
+                request = defaultGetStaffRequest;
+                break;
+            }
+            default:
+                throw new Error(
+                    "Unknown MindBody" +
+                        service +
+                        'service method " ' +
+                        serviceMethod +
+                        '"specified.'
+                );
+        } // end switch(serviceMethod)
         break;
-      }
-      case GetScheduleItems as string: {
-        request = defaultGetScheduleItemsRequest;
-        break;
-      }
-      default:
-        throw new Error(
-          "Unknown MindBody" +
-            service +
-            'service method " ' +
-            serviceMethod +
-            '"specified.'
-        );
-    } // end switch(serviceMethod)
-    break;
-  } // end case Appointment
-  case Staff as string: {
-    // case SOAP Service == Staff
-    clientPromise = createSoapClientAsync(staffWSDLURL);
-    parentCategory = catStaff;
-    loggingCategory = new Category("cat" + serviceMethod, parentCategory);
-    switch (serviceMethod) {
-      case GetStaff as string: {
-        request = defaultGetStaffRequest;
-        break;
-      }
-      default:
-        throw new Error(
-          "Unknown MindBody" +
-            service +
-            'service method " ' +
-            serviceMethod +
-            '"specified.'
-        );
-    } // end switch(serviceMethod)
-    break;
-  } // end case Staff
+    } // end case Staff
 } // end switch(service)
 
 // @ts-ignore TS2454
+// We should now have a valid SOAP client to query
 clientPromise.then(client => {
-  const soapMethod = client[serviceMethod] as ISoapMethod;
-  soapMethod(request, (err, result) => {
-    // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
-    // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
-    if (err) {
-      loggingCategory.debug(
-        // @ts-ignore TS2345:
-        () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
-      );
-      throw new Error(JSON.stringify(err));
-    } else {
-      loggingCategory.debug(
-        // @ts-ignore TS2345:
-        () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
-      );
-      loggingCategory.debug(
-        () => `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
-      );
-      handleResult(service, serviceMethod, result);
-    }
-  });
+    const soapMethod = client[serviceMethod] as ISoapMethod;
+    soapMethod(request, (err, result) => {
+        // console.log(`err: \n\n${JSON.stringify(err, undefined, 2)}`);
+        // console.log(`result: \n\n${JSON.stringify(result, undefined, 2)}`);
+        if (err) {
+            loggingCategory.debug(
+                // @ts-ignore TS2345:
+                () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+            );
+            throw new Error(JSON.stringify(err));
+        } else {
+            loggingCategory.debug(
+                // @ts-ignore TS2345:
+                () => `\n\nlastRequest: \n\n${xmlformat(client.lastRequest)}\n`
+            );
+            loggingCategory.debug(
+                () =>
+                    `\n\nresult: \n\n${JSON.stringify(result, undefined, 2)}\n`
+            );
+            handleResult(service, serviceMethod, result);
+        }
+    });
 });
 // @ts-ignore TS2454
 clientPromise.catch((reason: any) => {
-  throw new Error(reason as string);
+    throw new Error(reason as string);
 });
 
 console.log(`Done async\n`);
