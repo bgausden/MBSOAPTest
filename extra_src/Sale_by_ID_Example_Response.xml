@@ -1,0 +1,17 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://clients.mindbodyonline.com/api/">
+                <soapenv:Header/>
+                <soapenv:Body>
+                  <GetSales>
+                    <Request>
+                      <SourceCredentials>
+                        <SourceName>{SourceName}</SourceName>
+                        <Password>{Password}</Password>
+                        <SiteIDs>
+                          <int>{SiteID}</int>
+                        </SiteIDs>
+                      </SourceCredentials>
+                      <SaleID>5678</SaleID>
+                    </Request>
+                  </GetSales>
+                </soapenv:Body>
+              </soapenv:Envelope>
