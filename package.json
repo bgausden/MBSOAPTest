@@ -16,7 +16,7 @@
         "awesome-typescript-loader": "^5.2.1",
         "bluebird": "^3.7.2",
         "prettyjson": "^1.2.1",
-        "soap": "^0.25.0",
+        "soap": "^0.45.0",
         "source-map-loader": "^0.2.4",
         "tslint-config-prettier": "^1.18.0",
         "tslint-react": "^3.6.0",
